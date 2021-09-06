@@ -10,6 +10,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\MvcEvent;
 
 class Module extends AbstractModule
 {
@@ -18,6 +19,16 @@ class Module extends AbstractModule
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function onBootstrap(MvcEvent $event): void
+    {
+        parent::onBootstrap($event);
+        $this->getServiceLocator()->get('Omeka\Acl')
+            ->allow(
+                null,
+                [\IdRef\Controller\ApiProxyController::class],
+            );
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
