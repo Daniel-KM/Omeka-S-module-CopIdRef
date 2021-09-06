@@ -68,3 +68,6 @@
     cursor: hand;
     z-index: 204;
 }
+#popupControls img {
+    margin-top: -5px;
+}

@@ -60,9 +60,12 @@ class Module extends AbstractModule
         }
 
         $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
-        $view->headLink()->appendStylesheet($assetUrl('css/idref-admin.css', 'IdRef'));
+        $view->headLink()
+            ->appendStylesheet($assetUrl('css/idref-admin.css', 'IdRef'))
+            ->appendStylesheet($assetUrl('css/idref-sub-modal.css', 'IdRef'));
         $view->headScript()
             ->appendScript(sprintf('var baseUrl = %s;', json_encode($view->basePath('/'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)))
+            ->appendFile($assetUrl('js/idref-sub-modal.js', 'IdRef'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/idref-admin.js', 'IdRef'), 'text/javascript', ['defer' => 'defer']);
     }
 }

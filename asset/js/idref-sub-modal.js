@@ -125,7 +125,7 @@ function initPopUp() {
             '<div id="popupTitleBar">' +
                 '<div id="popupTitle"></div>' +
                 '<div id="popupControls">' +
-                    '<img src="css/fermer.gif" onclick="hidePopWin(false);" id="popCloseBox" />' +
+                    '<img src="' + baseUrl + 'modules/IdRef/asset/img/fermer.gif" onclick="hidePopWin(false);" id="popCloseBox" />' +
                 '</div>' +
             '</div>' +
             '<iframe src="' + gDefaultPage + '" style="width:100%;height:100%;background-color:transparent;" scrolling="auto" frameborder="0" allowtransparency="true" id="popupFrame" name="popupFrame" width="100%" height="100%"></iframe>' +
@@ -143,6 +143,7 @@ function initPopUp() {
     if (brsVersion <= 6 && window.navigator.userAgent.indexOf("MSIE") > -1) {
         gHideSelects = true;
     }
+return;
 
     // Add onclick handlers to 'a' elements of class submodal or submodal-width-height
     var elms = document.getElementsByTagName('a');
