@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace IdRef;
+namespace CopIdRef;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -27,7 +27,7 @@ class Module extends AbstractModule
         $this->getServiceLocator()->get('Omeka\Acl')
             ->allow(
                 null,
-                [\IdRef\Controller\ApiProxyController::class],
+                [Controller\ApiProxyController::class],
             );
     }
 

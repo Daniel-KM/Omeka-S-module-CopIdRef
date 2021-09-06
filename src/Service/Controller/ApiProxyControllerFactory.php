@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace IdRef\Service\Controller;
+namespace CopIdRef\Service\Controller;
 
+use CopIdRef\Controller\ApiProxyController;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
-use IdRef\Controller\ApiProxyController;
 
 class ApiProxyControllerFactory implements FactoryInterface
 {
