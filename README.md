@@ -1,5 +1,5 @@
-IdRef (module for Omeka S)
-===========================
+Copy IdRef (module for Omeka S)
+===============================
 
 > __New versions of this module and support for Omeka S version 3.0 and above
 > are available on [GitLab], which seems to respect users and privacy better
@@ -7,17 +7,18 @@ IdRef (module for Omeka S)
 
 Voir le [lisez-moi] en français.
 
-[IdRef] is a module for [Omeka S] that allows to use the thesaurus [IdRef of Abes]
+[Copy IdRef] is a module for [Omeka S] that allows to use the thesaurus [IdRef of Abes]
 in order to create new contents from IdRef data. This is useful when we need to
-create items for authors. If the author is not in Omeka, the it is possible to
-search in the IdRef base, to create the record inside it if needed, and to fetch
-data in a new item, and to link it with the item currently in edition.
+create items for authors. If the author is not in Omeka, then it is possible to
+search in the IdRef base, to create the record inside it if needed and if you
+have an account on it, and to fetch data in a new item, and to link it with the
+item currently in edition.
+
+This module uses the [IdRef modal popup], so it's easier for the user to know
+the resource is created.
 
 If you just need to link references from IdRef for some properties, the module
-[Value Suggest] should be used.
-
-This module should not be confused with the module IdRef from BibLibre, whose
-features were integrated in Value Suggest.
+[Value Suggest] should be used instead.
 
 
 Installation
@@ -27,13 +28,13 @@ See general end user documentation for [installing a module].
 
 * From the zip
 
-Download the last release [IdRef.zip] from the list of releases, and uncompress
-it in the `modules` directory, and rename the directory `IdRef`.
+Download the last release [CopIdRef.zip] from the list of releases, and uncompress
+it in the `modules` directory, and rename the directory `CopIdRef`.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `IdRef`.
+the module to `CopIdRef`.
 
 
 Utilisation
@@ -42,6 +43,8 @@ Utilisation
 When creating or editing a record, click on `Omeka Resource`, search if the
 resource does not already exist in your database, then, if needed, launch the
 search in IdRef via the selector.
+
+![button IdRef](data/images/bouton_idref.png)
 
 In the IdRef window, search for your record or create a new one (an account
 can be requested from Abes) and click on the button "Link the record". This
@@ -117,14 +120,15 @@ Université des Antilles and Université de la Guyane, currently managed with
 [Greenstone].
 
 
-[IdRef]: https://gitlab.com/Daniel-KM/Omeka-S-module-IdRef
-[lisez-moi]: https://gitlab.com/Daniel-KM/Omeka-S-module-IdRef/blob/master/LISEZMOI.md
+[Copy IdRef]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef
+[lisez-moi]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/blob/master/LISEZMOI.md
 [Omeka S]: https://omeka.org/s
 [IdRef of Abes]: https://www.idref.fr
+[IdRef modal popup]: http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
-[IdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-IdRef/-/releases
-[modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-IdRef/-/issues
+[CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
+[modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
