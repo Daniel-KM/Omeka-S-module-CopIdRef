@@ -27,7 +27,7 @@ class Module extends AbstractModule
         $this->getServiceLocator()->get('Omeka\Acl')
             ->allow(
                 null,
-                [Controller\ApiProxyController::class],
+                [Controller\ApiProxyController::class]
             );
     }
 
