@@ -133,7 +133,7 @@ Université des Antilles and Université de la Guyane, currently managed with
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[MIT]: http://http://opensource.org/licenses/MIT
+[MIT]: http://opensource.org/licenses/MIT
 [the presentation]: http://documentation.abes.fr/aideidrefdeveloppeur/index.html
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org

@@ -136,7 +136,7 @@ de l’Université des Antilles et Université de la Guyane, actuellement géré
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[MIT]: http://http://opensource.org/licenses/MIT
+[MIT]: http://opensource.org/licenses/MIT
 [la présentation]: http://documentation.abes.fr/aideidrefdeveloppeur/index.html
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
