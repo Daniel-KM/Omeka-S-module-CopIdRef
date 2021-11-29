@@ -19,7 +19,7 @@ var gPopupContainer = null;
 var gPopFrame = null;
 var gReturnFunc;
 var gPopupIsShown = false;
-var gDefaultPage = "http://www.idref.fr/autorites/autorites.html";
+var gDefaultPage = "https://www.idref.fr/autorites/autorites.html";
 var gHideSelects = false;
 var gReturnVal = null;
 
