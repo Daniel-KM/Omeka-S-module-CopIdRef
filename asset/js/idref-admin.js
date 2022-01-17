@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+    const basePath = window.location.pathname.replace(/\/admin\/.*/, '');
+
     // Adapté de http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation
     // TODO Async.
 
@@ -214,7 +216,7 @@ $(document).ready(function() {
         // Crée une nouvelle resource à partir des données.
         const resource = idrefRecordToResource(data, apiResourceType);
 
-        const url = baseUrl + 'api-proxy/' + apiResourceType;
+        const url = basePath + '/api-proxy/' + apiResourceType;
         $.ajax({
                 type: 'POST',
                 url: url,
@@ -229,11 +231,11 @@ $(document).ready(function() {
                 // The trigger requires a button "#select-item a", and data in ".resource details".
                 const resourceDetails = '<div class="resource-details" style="display:none;"></div>';
                 const valueObj = {
-                    '@id': location.protocol + '//' + location.hostname + baseUrl + 'api/' + apiResourceType + '/' + apiResource['o:id'],
+                    '@id': location.protocol + '//' + location.hostname + basePath + '/api/' + apiResourceType + '/' + apiResource['o:id'],
                     'type': 'resource',
                     'value_resource_id': apiResource['o:id'],
                     'value_resource_name': apiResourceType,
-                    'url': baseUrl + 'admin/' + resourceType + '/' + apiResource['o:id'],
+                    'url': basePath + '/admin/' + resourceType + '/' + apiResource['o:id'],
                     'display_title': apiResource['o:title'] ? apiResource['o:title'] : Omeka.jsTranslate('[Untitled]'),
                     'thumbnail_url': apiResource['thumbnail_display_urls']['square'],
                     // 'thumbnail_title': 'title.jpeg',
@@ -300,7 +302,7 @@ $(document).ready(function() {
         apiResourceType = rdfTypes[apiResourceType] ? apiResourceType : 'items';
 
         if (!mapping) {
-            const url = baseUrl + 'modules/IdRef/data/mappings/mappings.json';
+            const url = basePath + '/modules/CopIdRef/data/mappings/mappings.json';
             $.ajax({url: url, async: false})
                 .done(function(data) {
                     mapping = data[idrefType] ? data[idrefType] : defaultMapping;
@@ -313,7 +315,7 @@ $(document).ready(function() {
         }
 
         var resource = {
-            '@context': location.protocol + '//' + location.hostname + baseUrl + 'api-context',
+            '@context': location.protocol + '//' + location.hostname + basePath + '/api-context',
             '@id': null,
             '@type': rdfTypes[apiResourceType],
             'o:id' : null,
@@ -486,7 +488,7 @@ $(document).ready(function() {
     function getResourceId(apiResourceType, data) {
         var result;
         $.ajax({
-                url: baseUrl + 'api/' + apiResourceType,
+                url: basePath + '/api/' + apiResourceType,
                 data: data,
                 async: false,
             })

@@ -114,6 +114,8 @@ function getScrollLeft() {
  * Initializes popup code on load.
  */
 function initPopUp() {
+    const basePath = window.location.pathname.replace(/\/admin\/.*/, '');
+
     // Add the HTML to the body
     theBody = document.getElementsByTagName('BODY')[0];
     popmask = document.createElement('div');
@@ -125,7 +127,7 @@ function initPopUp() {
             '<div id="popupTitleBar">' +
                 '<div id="popupTitle"></div>' +
                 '<div id="popupControls">' +
-                    '<img src="' + baseUrl + 'modules/IdRef/asset/img/fermer.gif" onclick="hidePopWin(false);" id="popCloseBox" />' +
+                    '<img src="' + basePath + 'modules/CopIdRef/asset/img/fermer.gif" onclick="hidePopWin(false);" id="popCloseBox" />' +
                 '</div>' +
             '</div>' +
             '<iframe src="' + gDefaultPage + '" style="width:100%;height:100%;background-color:transparent;" scrolling="auto" frameborder="0" allowtransparency="true" id="popupFrame" name="popupFrame" width="100%" height="100%"></iframe>' +

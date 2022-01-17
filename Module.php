@@ -75,7 +75,6 @@ class Module extends AbstractModule
             ->appendStylesheet($assetUrl('css/idref-admin.css', 'CopIdRef'))
             ->appendStylesheet($assetUrl('css/idref-sub-modal.css', 'CopIdRef'));
         $view->headScript()
-            ->appendScript(sprintf('var baseUrl = %s;', json_encode($view->basePath('/'), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)))
             ->appendFile($assetUrl('js/idref-sub-modal.js', 'CopIdRef'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/idref-admin.js', 'CopIdRef'), 'text/javascript', ['defer' => 'defer']);
     }
