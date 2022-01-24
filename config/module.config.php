@@ -44,6 +44,20 @@ return [
             ],
         ],
     ],
+    'js_translate_strings' => [
+        'oFrame.contentWindow Failed?', // @translate
+        'Warning: cross-domain request!', // @translate
+        'Data from endpoint are empty.', // @translate
+        'Unable to determine the resource type.', // @translate
+        'Data are missing or incomplete.', // @translate
+        'Resource created from api successfully.', // @translate
+        '[Untitled]', // @translate
+        'Failed creating resource from api.', // @translate
+        'Failed to load mapping. Creating a default resource.', // @translate
+        'Mapping for resource class is incorrect. Skipped.', // @translate
+        'Mapping for resource template  is incorrect. Skipped.', // @translate
+        'Mapping for property is incorrect. Skipped.', // @translate
+    ],
     'idref' => [
         'config' => [
             'idref_user_id' => '',

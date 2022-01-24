@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-24 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/Generic/AbstractModule.php:66
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:73
+#, php-format
+msgid "This module requires modules \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:80
+msgid "This module has resources that cannot be installed."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:87
+msgid ""
+"This module cannot install its tables, because they exist already. Try to "
+"remove them first."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:328
+#, php-format
+msgid "The module removed tables \"%s\" from a previous broken install."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:792
+#, php-format
+msgid ""
+"The module \"%s\" was automatically deactivated because the dependencies are "
+"unavailable."
+msgstr ""
+
+#: config/module.config.php:48
+msgid "oFrame.contentWindow Failed?"
+msgstr ""
+
+#: config/module.config.php:49
+msgid "Warning: cross-domain request!"
+msgstr ""
+
+#: config/module.config.php:50
+msgid "Data from endpoint are empty."
+msgstr ""
+
+#: config/module.config.php:51
+msgid "Unable to determine the resource type."
+msgstr ""
+
+#: config/module.config.php:52
+msgid "Data are missing or incomplete."
+msgstr ""
+
+#: config/module.config.php:53
+msgid "Resource created from api successfully."
+msgstr ""
+
+#: config/module.config.php:55
+msgid "Failed creating resource from api."
+msgstr ""
+
+#: config/module.config.php:56
+msgid "Failed to load mapping. Creating a default resource."
+msgstr ""
+
+#: config/module.config.php:57
+msgid "Mapping for resource class is incorrect. Skipped."
+msgstr ""
+
+#: config/module.config.php:58
+msgid "Mapping for resource template  is incorrect. Skipped."
+msgstr ""
+
+#: config/module.config.php:59
+msgid "Mapping for property is incorrect. Skipped."
+msgstr ""
