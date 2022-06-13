@@ -16,11 +16,6 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
-
     public function onBootstrap(MvcEvent $event): void
     {
         parent::onBootstrap($event);
@@ -63,6 +58,7 @@ class Module extends AbstractModule
 
     public function addAdminResourceHeaders(Event $event): void
     {
+        /** @var \Laminas\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
 
         $action = $view->params()->fromRoute('action');
@@ -70,11 +66,33 @@ class Module extends AbstractModule
             return;
         }
 
-        $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
+        $plugins = $view->getHelperPluginManager();
+        $setting = $plugins->get('setting');
+        $assetUrl = $plugins->get('assetUrl');
+
+        // Liste officielle tirée de l'exemple. Les valeurs sont les clés.
+        /** @link http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation */
+        $defaultAvailableIdRefResources = [
+            'Nom de personne',
+            'Nom de collectivité',
+            'Nom commun',
+            'Nom géographique',
+            'Famille',
+            'Titre',
+            'Auteur-Titre',
+            'Nom de marque',
+            'Ppn',
+            'Rcr',
+            'Tout',
+        ];
+        $availableIdRefResources = $setting('copidref_available_resources') ?: $defaultAvailableIdRefResources;
+        $script = 'const availableIdRefResources = ' . json_encode($availableIdRefResources, 320) . ';';
+
         $view->headLink()
             ->appendStylesheet($assetUrl('css/idref-admin.css', 'CopIdRef'))
             ->appendStylesheet($assetUrl('css/idref-sub-modal.css', 'CopIdRef'));
         $view->headScript()
+            ->appendScript($script)
             ->appendFile($assetUrl('js/idref-sub-modal.js', 'CopIdRef'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/idref-admin.js', 'CopIdRef'), 'text/javascript', ['defer' => 'defer']);
     }

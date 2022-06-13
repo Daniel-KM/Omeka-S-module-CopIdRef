@@ -503,6 +503,9 @@ $(document).ready(function() {
 
     // Append the button to create a new resource.
     $(document).on('o:sidebar-content-loaded', 'body.sidebar-open', function(e) {
+        if (typeof availableIdRefResources === 'undefined' || !availableIdRefResources.length) {
+            return;
+        }
         const sidebar = $('#select-resource.sidebar');
         if (sidebar.find('.quick-add-webservice').length || !sidebar.find('#sidebar-resource-search').length) {
             return;
@@ -511,25 +514,20 @@ $(document).ready(function() {
         if (!resourceType || !resourceType.length) {
             return;
         }
+
         const iconResourceType = resourceType === 'media' ? 'media' : resourceType + 's';
-        const button = `
-<div data-data-type="resource:${resourceType}">
+        var select = $(`
     <select id="ws-type" class="o-icon-${iconResourceType} button quick-add-webservice submodal">
         <option value="">Ressource via IdRef</option>
-        <option value="Nom de personne">Nom de personne</option>
-        <option value="Nom de collectivité">Nom de collectivité</option>
-        <option value="Nom commun">Nom commun</option>
-        <option value="Nom géographique">Nom géographique</option>
-        <option value="Famille">Famille</option>
-        <option value="Titre">Titre</option>
-        <option value="Auteur-Titre">Auteur-Titre</option>
-        <option value="Nom de marque">Nom de marque</option>
-        <option value="Ppn">Ppn</option>
-        <option value="Rcr">Rcr</option>
-        <option value="Tout">Tout</option>
-    </select>
-</div>
-`;
+    </select>`);
+        availableIdRefResources.forEach((availableIdRefResource) => {
+            select.append($('<option>', {
+                value: availableIdRefResource,
+                text: availableIdRefResource,
+            }));
+        });
+        const button = $(`<div data-data-type="resource:${resourceType}"></div>`);
+        button.append(select);
         sidebar.find('.search-nav').after(button);
     });
 

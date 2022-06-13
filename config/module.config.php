@@ -3,6 +3,11 @@
 namespace CopIdRef;
 
 return [
+    'form_elements' => [
+        'invokables' => [
+            Form\ConfigForm::class => Form\ConfigForm::class,
+        ],
+    ],
     'controllers' => [
         'factories' => [
             Controller\ApiProxyController::class => Service\Controller\ApiProxyControllerFactory::class,
@@ -58,9 +63,11 @@ return [
         'Mapping for resource template  is incorrect. Skipped.', // @translate
         'Mapping for property is incorrect. Skipped.', // @translate
     ],
-    'idref' => [
+    'copidref' => [
         'config' => [
-            'idref_user_id' => '',
+            // Non utilisé actuellement : l'utilisateur utilise directement la session IdRef.
+            'copidref_user_id' => '',
+            'copidref_available_resources' => [],
         ],
     ],
 ];
