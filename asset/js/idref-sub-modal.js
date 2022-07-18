@@ -114,7 +114,7 @@ function getScrollLeft() {
  * Initializes popup code on load.
  */
 function initPopUp() {
-    const basePath = window.location.pathname.replace(/\/admin\/.*/, '');
+    const basePath = window.location.pathname.replace(/\/admin\/.*/, '/');
 
     // Add the HTML to the body
     theBody = document.getElementsByTagName('BODY')[0];
