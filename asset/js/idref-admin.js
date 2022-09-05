@@ -13,7 +13,8 @@ $(document).ready(function() {
     var oFrame;
     var idrefinit = false;
 
-    // Les correspondances idref/omeka sont dans le module. Ceci est utilisé en cas de problème idref.
+    // Les correspondances idref/omeka sont dans le module (data/mappings/mappings.json).
+    // Ceci est utilisé en cas de problème avec idref.
     const defaultMapping = [
         {
           "from": {

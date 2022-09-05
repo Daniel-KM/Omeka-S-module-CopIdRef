@@ -158,6 +158,19 @@
     {
       "from": {
         "type": "xpath",
+        "path": "/record/datafield[@tag='200']/subfield[@code='c'][1]"
+      },
+      "to": {
+        "type": "property",
+        "data": {
+          "property": "bio:position",
+          "property_id": 191
+        }
+      }
+    },
+    {
+      "from": {
+        "type": "xpath",
         "path": "/record/datafield[@tag='340']/subfield[@code='a'][1]",
         "#": "Ou 300 ?"
       },
