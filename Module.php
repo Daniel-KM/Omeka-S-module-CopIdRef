@@ -7,6 +7,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
         ? dirname(__DIR__) . '/Generic/AbstractModule.php'
         : __DIR__ . '/src/Generic/AbstractModule.php';
 }
+
 use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;

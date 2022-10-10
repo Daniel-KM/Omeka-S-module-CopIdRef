@@ -403,8 +403,10 @@ $(document).ready(function() {
                         to.data.type = 'literal';
                     }
                 } else if (to.format === 'number_to_date') {
-                    if (value.match(/^-?[\d]+$/gm)) {
-                        value = (value.substring(0, 4) + '-' + value.substring(4, 6) + '-' + value.substring(6, 8)).replace(/-+$/, '');
+                    if (value.match(/^[+ -]?\d+$/gm)) {
+                        const sign = value.substring(0, 1) === '-' ? '-' : '';
+                        value.replace(/^-+ /, '');
+                        value = sign + (value.substring(0, 4) + '-' + value.substring(4, 6) + '-' + value.substring(6, 8)).replace(/-+$/, '');
                     } else {
                         to.data.type = 'literal';
                     }
