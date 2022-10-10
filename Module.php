@@ -8,10 +8,13 @@ if (!class_exists(\Generic\AbstractModule::class)) {
         : __DIR__ . '/src/Generic/AbstractModule.php';
 }
 
+use CopIdRef\Form\ConfigForm;
 use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
+use Omeka\Stdlib\Message;
 
 class Module extends AbstractModule
 {
@@ -50,11 +53,85 @@ class Module extends AbstractModule
             'view.layout',
             [$this, 'addAdminResourceHeaders']
         );
-        $sharedEventManager->attach(
-            \Article\Controller\Admin\ArticleController::class,
-            'view.layout',
-            [$this, 'addAdminResourceHeaders']
+    }
+
+    public function handleConfigForm(AbstractController $controller)
+    {
+        if (!parent::handleConfigForm($controller)) {
+            return false;
+        }
+
+        $services = $this->getServiceLocator();
+        $form = $services->get('FormElementManager')->get(ConfigForm::class);
+        $params = $controller->getRequest()->getPost();
+
+        // Form is already validated in parent, but removed by Generic.
+        $post = $params;
+        $form->init();
+        $form->setData($params);
+        $form->isValid();
+        $params = $form->getData();
+
+        if (empty($post['sync_records']['process'])) {
+            return true;
+        }
+
+        $plugins = $services->get('ControllerPluginManager');
+        $messenger = $plugins->get('messenger');
+        $urlHelper = $plugins->get('url');
+
+        $args = $post['sync_records'];
+
+        if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
+            $message = new Message(
+                'Le mode de mise à jour n’est pas indiqué.'
+            );
+            $messenger->addError($message);
+            return true;
+        }
+
+        if (empty($args['properties'])) {
+            $message = new Message(
+                'Les propriétés à mettre à jour ne sont pas indiquées.'
+            );
+            $messenger->addError($message);
+            return true;
+        }
+
+        if (empty($args['property_uri'])) {
+            $message = new Message(
+                'La propriété où se trouve l’uri n’est pas indiquée.'
+            );
+            $messenger->addError($message);
+            return true;
+        }
+
+        $query = [];
+        parse_str($args['query'] ?? '', $query);
+        $args['query'] = $query;
+
+        $args = array_intersect_key($args, array_flip(['mode', 'query', 'properties', 'datatypes', 'property_uri', 'mapping_key']));
+
+        $dispatcher = $services->get(\Omeka\Job\Dispatcher::class);
+        $job = $dispatcher->dispatch(\CopIdRef\Job\SyncIdRef::class, $args);
+
+        $message = new Message(
+            'Mise à jour des ressources via IdRef en arrière-plan (%1$stâche #%2$d%3$s, %4$sjournaux%3$s).', // @translate
+            sprintf('<a href="%s">',
+                htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+            ),
+            $job->getId(),
+            '</a>',
+            sprintf('<a href="%s">',
+                htmlspecialchars($this->isModuleActive('Log')
+                    ? $urlHelper->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
+                    : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                )
+            )
         );
+        $message->setEscapeHtml(false);
+        $messenger->addSuccess($message);
+        return true;
     }
 
     public function addAdminResourceHeaders(Event $event): void
