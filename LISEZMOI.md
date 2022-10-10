@@ -21,11 +21,17 @@ bien distinguer où la ressource est créée.
 Si vous avez seulement besoin de lier des références pour des propriétés, le
 module [Value Suggest] doit être utilisé.
 
+Si des items contiennent l’uri, il est possible de les remplir et de les mettre
+à jour automatiquement.
+
 
 Installation
 ------------
 
 Consulter la documentation générale pour [installer un module].
+
+Si vous utilisez des vocabulaires personnalisés (custom vocab) avec des uris
+dans un alignement, il est recommandé d’installer [Bulk Edit].
 
 * À partir du zip
 
@@ -54,6 +60,9 @@ Un alignement par défaut entre l’Unimarc et les ontologies Omeka est présent
 dans le dossier `data/mappings`. Vous pouvez le modifier ou le compléter si
 besoin. Seuls les auteurs et collectivités sont prédéfinis, outre une
 correspondance générique.
+
+Pour mettre à jour les notices, utilisez l’outil de synchronisation disponible
+dans la configuration du module.
 
 
 TODO
@@ -131,6 +140,7 @@ de l’Université des Antilles et Université de la Guyane, actuellement géré
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installer un module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
+[Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html

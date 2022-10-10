@@ -20,11 +20,15 @@ the resource is created.
 If you just need to link references from IdRef for some properties, the module
 [Value Suggest] should be used instead.
 
+If items contain the uri, they may be automatically filled or updated.
+
 
 Installation
 ------------
 
 See general end user documentation for [installing a module].
+
+If custom vocabs with uris are used in a mapping, you may need module [Bulk Edit].
 
 * From the zip
 
@@ -54,6 +58,8 @@ resource.
 A default mapping between Unimarc and Omeka ontologies is present in the `data/mappings`
 folder. You can modify it or complete it if needed. Only the authors and
 collectivities are predefined, in addition to a generic mapping.
+
+To update items, use the sync tool available in the module config.
 
 
 TODO
@@ -128,6 +134,7 @@ Université des Antilles and Université de la Guyane, currently managed with
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
+[Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
