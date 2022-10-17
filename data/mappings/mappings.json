@@ -198,21 +198,16 @@
     },
     {
       "from": {
-        "type": "data",
-        "path": "b",
-        "#": "= /record/controlfield[@tag='003']"
+        "type": "xpath",
+        "path": "/record/controlfield[@tag='003']",
+        "#": "= type data : path b"
       },
       "to": {
         "type": "property",
-        "format": "concat",
-        "args": {
-          "0": "https://www.idref.fr/",
-          "1": "__value__"
-        },
         "data": {
           "property": "bibo:identifier",
           "property_id": 98,
-          "type": "uri"
+          "type": "valuesuggest:idref:person"
         }
       }
     },
@@ -339,21 +334,16 @@
     },
     {
       "from": {
-        "type": "data",
-        "path": "b",
-        "#": "= /record/controlfield[@tag='003']"
+        "type": "xpath",
+        "path": "/record/controlfield[@tag='003']",
+        "#": "= type data : path b"
       },
       "to": {
         "type": "property",
-        "format": "concat",
-        "args": {
-          "0": "https://www.idref.fr/",
-          "1": "__value__"
-        },
         "data": {
           "property": "bibo:identifier",
           "property_id": 98,
-          "type": "uri"
+          "type": "valuesuggest:idref:corporation"
         }
       }
     },
