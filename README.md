@@ -132,7 +132,7 @@ Université des Antilles and Université de la Guyane, currently managed with
 [IdRef of Abes]: https://www.idref.fr
 [IdRef modal popup]: http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
-[installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
+[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
