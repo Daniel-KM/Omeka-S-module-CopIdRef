@@ -556,9 +556,16 @@ class SyncIdRef extends AbstractJob
             'resource:annotation' => 'resource',
             'annotation' => 'resource',
             // Module DataTypeGeometry.
+            // Ancienne version.
             'geometry:geography:coordinates' => 'literal',
             'geometry:geography' => 'literal',
             'geometry:geometry' => 'literal',
+            // Nouvelle version.
+            'geography' => 'literal',
+            'geography:coordinates' => 'literal',
+            'geometry' => 'literal',
+            'geometry:coordinates' => 'literal',
+            'geometry:position' => 'literal',
             // Module DataTypePlace.
             'place' => 'literal',
             // Module DataTypeRdf.
