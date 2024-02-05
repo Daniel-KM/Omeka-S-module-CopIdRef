@@ -567,7 +567,7 @@ class SyncIdRef extends AbstractJob
             'geometry:coordinates' => 'literal',
             'geometry:position' => 'literal',
             // Module DataTypePlace.
-            'place' => 'literal',
+            'place' => 'place',
             // Module DataTypeRdf.
             'html' => 'literal',
             'xml' => 'literal',
