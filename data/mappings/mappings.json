@@ -143,15 +143,15 @@
     {
       "from": {
         "type": "xpath",
-        "path": "/record/datafield[@tag='102']/subfield[@code='a'][1]",
-        "#": "Convertir en valuesuggest:geonames:geonames via bulk edit ou récupérérer la table des pays et équivalents géonames ici."
+        "path": "/record/datafield[@tag='102']/subfield[@code='a'][1]"
       },
       "to": {
         "type": "property",
+        "format": "code_to_geonames",
         "data": {
           "property": "bio:place",
           "property_id": 190,
-          "type": "literal"
+          "type": "valuesuggest:geonames:geonames"
         }
       }
     },
@@ -392,15 +392,15 @@
     {
       "from": {
         "type": "xpath",
-        "path": "/record/datafield[@tag='102']/subfield[@code='a'][1]",
-        "#": "Convertir en valuesuggest:geonames:geonames via bulk edit ou récupérérer la table des pays et équivalents géonames ici."
+        "path": "/record/datafield[@tag='102']/subfield[@code='a'][1]"
       },
       "to": {
         "type": "property",
+        "format": "code_to_geonames",
         "data": {
           "property": "bio:place",
           "property_id": 190,
-          "type": "literal"
+          "type": "valuesuggest:geonames:geonames"
         }
       }
     },

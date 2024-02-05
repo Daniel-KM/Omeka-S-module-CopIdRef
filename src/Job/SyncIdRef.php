@@ -41,6 +41,11 @@ class SyncIdRef extends AbstractJob
      */
     protected $logger;
 
+    /**
+     * @var array
+     */
+    protected $geonamesCountries;
+
     public function perform(): void
     {
         $services = $this->getServiceLocator();
@@ -83,11 +88,14 @@ class SyncIdRef extends AbstractJob
             return;
         }
 
+        $this->initGeonamesCountries();
+
         $managedDatatypes = [
             'literal',
             'uri',
             'valuesuggest:idref:person',
             'valuesuggest:idref:corporation',
+            'valuesuggest:geonames:geonames',
         ];
 
         $datatypes = $args['datatypes'] ?? [];
@@ -354,6 +362,13 @@ class SyncIdRef extends AbstractJob
                         $datatype = 'literal';
                     }
                     break;
+                case 'code_to_geonames':
+                    if (isset($this->geonamesCountries[$value])) {
+                        $value = $this->geonamesCountries[$value];
+                    } else {
+                        $datatype = 'literal';
+                    }
+                    break;
                 default:
                     // nothing.
             }
@@ -533,5 +548,35 @@ class SyncIdRef extends AbstractJob
         }
 
         return $doc;
+    }
+
+    /**
+     * Prepare table of iso-2 letters to geonames uri.
+     */
+    protected function initGeonamesCountries(): self
+    {
+        $geonames = file_get_contents('https://download.geonames.org/export/dump/countryInfo.txt');
+        if (!strlen((string) $geonames)) {
+            $this->logger->warn(
+                'Impossible de récupérer les données des pays geonames. Utilisation du fichier local'
+            );
+            $geonames = file_get_contents(dirname(__DIR__, 2) . '/data/mappings/geonames_countries.json');
+            $geonames = json_decode($geonames, true);
+            $this->geonames = array_map(fn ($v) => 'http://www.geonames.org/' . $v, $geonames);
+            return $this;
+        }
+
+        $result = [];
+        foreach (explode("\n", $geonames) as $row) {
+            $row = trim((string) $row);
+            if (!$row || mb_substr($row, 0, 1) === '#') {
+                continue;
+            }
+            $row = str_getcsv($row, "\t");
+            $result[$row[0]] = 'http://www.geonames.org/' . trim($row[16]);
+        }
+
+        $this->geonames = $result;
+        return $this;
     }
 }

@@ -211,7 +211,6 @@ $(document).ready(function() {
 
         hidePopWin(null);
 
-
         const apiResourceType = apiTypeResource(resourceType);
 
         // Crée une nouvelle resource à partir des données.
@@ -315,6 +314,17 @@ $(document).ready(function() {
                 });
         }
 
+        var geonamesCountries;
+        $.ajax({url: basePath + '/modules/CopIdRef/data/mappings/geonames_countries.json', async: false})
+            .done(function(data) {
+                geonamesCountries = data;
+            })
+            .fail(function(jqXHR) {
+                alert(Omeka.jsTranslate('Failed to load geonames countries.'));
+                console.log(jqXHR);
+                geonamesCountries = {};
+            });
+
         var resource = {
             '@context': location.protocol + '//' + location.hostname + basePath + '/api-context',
             '@id': null,
@@ -407,6 +417,12 @@ $(document).ready(function() {
                         const sign = value.substring(0, 1) === '-' ? '-' : '';
                         value.replace(/^-+ /, '');
                         value = sign + (value.substring(0, 4) + '-' + value.substring(4, 6) + '-' + value.substring(6, 8)).replace(/-+$/, '');
+                    } else {
+                        to.data.type = 'literal';
+                    }
+                } else if (to.format === 'code_to_geonames') {
+                    if (geonamesCountries[value]) {
+                        value = 'http://www.geonames.org/' + geonamesCountries[value];
                     } else {
                         to.data.type = 'literal';
                     }

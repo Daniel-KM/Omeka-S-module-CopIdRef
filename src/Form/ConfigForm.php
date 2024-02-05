@@ -114,6 +114,7 @@ class ConfigForm extends Form
                         'literal' => 'Literal', // @translate
                         'valuesuggest:idref:person' => 'IdRef Personnes', // @translate
                         'valuesuggest:idref:corporation' => 'IdRef Organisations', // @translate
+                        'valuesuggest:geonames:geonames' => 'Geonames', // @translate
                     ],
                 ],
                 'attributes' => [
