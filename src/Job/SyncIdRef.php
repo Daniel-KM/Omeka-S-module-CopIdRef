@@ -17,11 +17,6 @@ class SyncIdRef extends AbstractJob
     const SQL_LIMIT = 100;
 
     /**
-     * @var \Laminas\Log\Logger
-     */
-    protected $logger;
-
-    /**
      * @var \Omeka\Api\Manager
      */
     protected $api;
@@ -32,14 +27,19 @@ class SyncIdRef extends AbstractJob
     protected $connection;
 
     /**
+     * @var \Common\Stdlib\EasyMeta
+     */
+    protected $easyMeta;
+
+    /**
      * @var \Doctrine\ORM\EntityManager
      */
     protected $entityManager;
 
     /**
-     * @var \BulkEdit\View\Helper\CustomVocabBaseType
+     * @var \Laminas\Log\Logger
      */
-    protected $customVocabBaseType;
+    protected $logger;
 
     public function perform(): void
     {
@@ -57,12 +57,9 @@ class SyncIdRef extends AbstractJob
         $this->logger->addProcessor($referenceIdProcessor);
 
         $this->api = $services->get('Omeka\ApiManager');
+        $this->easyMeta = $services->get('EasyMeta');
         $this->connection = $services->get('Omeka\Connection');
         $this->entityManager = $services->get('Omeka\EntityManager');
-
-        $this->customVocabBaseType = $services->get('ViewHelperManager')->has('customVocabBaseType')
-            ? $services->get('ViewHelperManager')->get('customVocabBaseType')
-            : null;
 
         $args = $this->job->getArgs() ?: [];
         if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
@@ -79,7 +76,7 @@ class SyncIdRef extends AbstractJob
             return;
         }
 
-        if (empty($args['property_uri']) || empty($this->getPropertyIds()[$args['property_uri']])) {
+        if (empty($args['property_uri']) || !$this->easyMeta->propertyId([$args['property_uri']])) {
             $this->logger->err(
                 'La propriété où se trouve l’uri n’est pas indiquée.'
             );
@@ -97,10 +94,10 @@ class SyncIdRef extends AbstractJob
         $processAllDatatypes = empty($datatypes) || in_array('all', $datatypes);
 
         // Flat the list of datatypes.
-        $dataTypeManager = $services->get('Omeka\DataTypeManager');
+        $dataTypesAll = $this->easyMeta->dataTypeNames();
         $datatypes = $processAllDatatypes
-            ? array_intersect($dataTypeManager->getRegisteredNames(), $managedDatatypes)
-            : array_intersect($dataTypeManager->getRegisteredNames(), $datatypes, $managedDatatypes);
+            ? array_intersect($dataTypesAll, $managedDatatypes)
+            : array_intersect($dataTypesAll, $datatypes, $managedDatatypes);
 
         if (empty($datatypes)) {
             $this->logger->err(
@@ -148,7 +145,7 @@ class SyncIdRef extends AbstractJob
             'valuesuggest:idref:corporation' => 'Collectivité',
         ];
 
-        $propertyId = $this->getPropertyIds()[$propertyUri];
+        $propertyId = $this->easyMeta->propertyId($propertyUri);
 
         $query['property'][] = [
             'joiner' => 'and',
@@ -311,7 +308,7 @@ class SyncIdRef extends AbstractJob
             if (!$processAllProperties && !in_array($property, $properties)) {
                 continue;
             }
-            $propertyId = $this->getPropertyIds()[$property] ?? null;
+            $propertyId = $this->easyMeata->propertyId($property);
             if (!$propertyId) {
                 continue;
             }
@@ -366,7 +363,7 @@ class SyncIdRef extends AbstractJob
                 $data[$property] = [];
             }
 
-            $datatypeMain = $this->mainDataType($datatype);
+            $datatypeMain = $this->easyMeta->dataTypeMain($datatype);
             switch ($datatypeMain) {
                 case 'uri':
                     $newValue = [
@@ -536,97 +533,5 @@ class SyncIdRef extends AbstractJob
         }
 
         return $doc;
-    }
-
-    /**
-     * Get main datatype ("literal", "resource" or "uri") from any data type.
-     */
-    protected function mainDataType(?string $dataType): ?string
-    {
-        if (empty($dataType)) {
-            return null;
-        }
-        $mainDataTypes = [
-            'literal' => 'literal',
-            'uri' => 'uri',
-            'resource' => 'resource',
-            'resource:item' => 'resource',
-            'resource:itemset' => 'resource',
-            'resource:media' => 'resource',
-            // Module Annotate.
-            'resource:annotation' => 'resource',
-            'annotation' => 'resource',
-            // Module DataTypeGeometry.
-            // Nouvelle version.
-            'geography' => 'literal',
-            'geography:coordinates' => 'literal',
-            'geometry' => 'literal',
-            'geometry:coordinates' => 'literal',
-            'geometry:position' => 'literal',
-            // Ancienne version.
-            'geometry:geometry' => 'literal',
-            'geometry:geography' => 'literal',
-            'geometry:geography:coordinates' => 'literal',
-            // Module DataTypePlace.
-            'place' => 'place',
-            // Module DataTypeRdf.
-            'html' => 'literal',
-            'xml' => 'literal',
-            'boolean' => 'literal',
-            // Specific module.
-            'email' => 'literal',
-            // Module NumericDataTypes.
-            'numeric:timestamp' => 'literal',
-            'numeric:integer' => 'literal',
-            'numeric:duration' => 'literal',
-            'numeric:interval' => 'literal',
-        ];
-        $dataType = strtolower($dataType);
-        if (array_key_exists($dataType, $mainDataTypes)) {
-            return $mainDataTypes[$dataType];
-        }
-        // Module ValueSuggest.
-        if (substr($dataType, 0, 12) === 'valuesuggest'
-            // || substr($dataType, 0, 15) === 'valuesuggestall'
-        ) {
-            return 'uri';
-        }
-        if (substr($dataType, 0, 11) === 'customvocab') {
-            return $this->customVocabBaseType
-                ? $this->customVocabBaseType->__invoke(substr($dataType, 12))
-                : 'literal';
-        }
-        return null;
-    }
-
-    /**
-     * Get all property ids by term.
-     *
-     * @return array Associative array of ids by term.
-     */
-    protected function getPropertyIds(): array
-    {
-        static $properties;
-        if (isset($properties)) {
-            return $properties;
-        }
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select(
-                'DISTINCT CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
-                'property.id AS id',
-                // Only the two first selects are needed, but some databases
-                // require "order by" or "group by" value to be in the select.
-                'vocabulary.id'
-            )
-            ->from('property', 'property')
-            ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
-            ->orderBy('vocabulary.id', 'asc')
-            ->addOrderBy('property.id', 'asc')
-            ->addGroupBy('property.id')
-        ;
-        return $properties
-            = array_map('intval', $this->connection->executeQuery($qb)->fetchAllKeyValue());
     }
 }

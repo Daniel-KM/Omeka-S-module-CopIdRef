@@ -8,12 +8,12 @@ if (!class_exists(\Common\TraitModule::class)) {
 
 use Common\TraitModule;
 use CopIdRef\Form\ConfigForm;
+use Common\Stdlib\PsrMessage;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
 use Omeka\Module\AbstractModule;
-use Common\Stdlib\PsrMessage;
 
 /**
  * CopIdRef
