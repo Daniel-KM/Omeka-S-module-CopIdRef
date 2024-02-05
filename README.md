@@ -28,6 +28,8 @@ Installation
 
 See general end user documentation for [installing a module].
 
+The module [Common] must be installed first.
+
 If custom vocabs with uris are used in a mapping, you may need module [Bulk Edit].
 
 * From the zip
@@ -118,7 +120,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2021-2024 (see [Daniel-KM] on GitLab)
 * Copyright Abes, (see files in [the presentation])
 
 These features are built for the future digital library [Manioc] of the
@@ -133,6 +135,7 @@ Université des Antilles and Université de la Guyane, currently managed with
 [IdRef modal popup]: http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues

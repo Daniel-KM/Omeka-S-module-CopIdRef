@@ -30,6 +30,8 @@ Installation
 
 Consulter la documentation générale pour [installer un module].
 
+Le module [Common] doit être installé en premier.
+
 Si vous utilisez des vocabulaires personnalisés (custom vocab) avec des uris
 dans un alignement, il est recommandé d’installer [Bulk Edit].
 
@@ -124,7 +126,7 @@ connaissance de la licence CeCILL et que vous en acceptez les termes.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021 (voir [Daniel-KM] sur GitLab)
+* Copyright Daniel Berthereau, 2021-2024 (voir [Daniel-KM] sur GitLab)
 * Copyright Abes, (voir les fichiers présents dans [la présentation])
 
 Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
@@ -139,6 +141,7 @@ de l’Université des Antilles et Université de la Guyane, actuellement géré
 [fenêtre modale d’IdRef]:  http://documentation.abes.fr/aideidrefdeveloppeur/index.html#installation
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installer un module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
