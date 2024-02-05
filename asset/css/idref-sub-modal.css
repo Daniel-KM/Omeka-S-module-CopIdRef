@@ -20,7 +20,8 @@
      * you can uncomment the background-image if you don't care about opera.
      * this gives you the flexibility to use any bg color that you want, instead of the png
      */
-    background-image/**/: url("maskBG.png") !important; /* For browsers Moz, Opera, etc. */
+    /* background-image/*: url("maskBG.png") !important; /* For browsers Moz, Opera, etc. */
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=) !important; /* For browsers Moz, Opera, etc. */
     background-image: none;
     background-repeat: repeat;
     display: none;
