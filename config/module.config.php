@@ -60,7 +60,7 @@ return [
         'Failed creating resource from api.', // @translate
         'Failed to load mapping. Creating a default resource.', // @translate
         'Mapping for resource class is incorrect. Skipped.', // @translate
-        'Mapping for resource template  is incorrect. Skipped.', // @translate
+        'Mapping for resource template is incorrect. Skipped.', // @translate
         'Mapping for property is incorrect. Skipped.', // @translate
     ],
     'copidref' => [

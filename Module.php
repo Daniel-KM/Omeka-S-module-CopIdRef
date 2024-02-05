@@ -78,7 +78,7 @@ class Module extends AbstractModule
 
         $plugins = $services->get('ControllerPluginManager');
         $messenger = $plugins->get('messenger');
-        $urlHelper = $plugins->get('url');
+        $urlPlugin = $plugins->get('url');
 
         $args = $post['sync_records'];
 
@@ -118,14 +118,14 @@ class Module extends AbstractModule
         $message = new Message(
             'Mise à jour des ressources via IdRef en arrière-plan (%1$stâche #%2$d%3$s, %4$sjournaux%3$s).', // @translate
             sprintf('<a href="%s">',
-                htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
             ),
             $job->getId(),
             '</a>',
             sprintf('<a href="%s">',
                 htmlspecialchars($this->isModuleActive('Log')
-                    ? $urlHelper->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
-                    : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                    ? $urlPlugin->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
+                    : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
                 )
             )
         );

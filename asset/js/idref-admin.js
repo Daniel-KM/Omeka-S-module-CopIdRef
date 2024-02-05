@@ -291,8 +291,8 @@ $(document).ready(function() {
             'u': 'Forme Rameau',
             'v': 'Genre Rameau',
             'w': 'RCR',
-       };
-       const idrefType = idrefTypes[record['g']] ? idrefTypes[record['g']] : 'Autre';
+        };
+        const idrefType = idrefTypes[record['g']] ? idrefTypes[record['g']] : 'Autre';
 
         const rdfTypes = {
             'items': 'o:Item',
@@ -359,7 +359,7 @@ $(document).ready(function() {
                     to.data['o:resource_class'] = null;
                 }
                 if (to.data['o:resource_template']['o:id'] && !to.data['o:resource_template']['o:id']) {
-                    alert(Omeka.jsTranslate('Mapping for resource template  is incorrect. Skipped.') + ' (' + to.data['o:resource_template']['o:term'] + ')');
+                    alert(Omeka.jsTranslate('Mapping for resource template is incorrect. Skipped.') + ' (' + to.data['o:resource_template']['o:term'] + ')');
                     to.data['o:resource_template'] = null;
                 }
                 value = to.data;
