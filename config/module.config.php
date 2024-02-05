@@ -8,11 +8,13 @@ return [
             Form\ConfigForm::class => Form\ConfigForm::class,
         ],
     ],
+    // Deprecated in Omeka S v4.1.
     'controllers' => [
         'factories' => [
             Controller\ApiProxyController::class => Service\Controller\ApiProxyControllerFactory::class,
         ],
     ],
+    // Deprecated in Omeka S v4.1.
     'router' => [
         'routes' => [
             'api-proxy' => [

@@ -19,6 +19,7 @@ use Omeka\Stdlib\Message;
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 $settings = $services->get('Omeka\Settings');
+$translate = $plugins->get('translate');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 $entityManager = $services->get('Omeka\EntityManager');
@@ -28,4 +29,14 @@ if (version_compare($oldVersion, '3.3.0.6', '<')) {
         'Une option permet désormais de limiter les types de ressources à chercher.' // @translate
     );
     $messenger->addSuccess($message);
+}
+
+if (version_compare($oldVersion, '3.4.11', '<')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.51')) {
+        $message = new Message(
+            $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+            'Common', '3.4.51'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
 }
