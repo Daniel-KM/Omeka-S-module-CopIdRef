@@ -5,7 +5,6 @@ namespace CopIdRef\Job;
 use DOMDocument;
 use DOMXPath;
 use Omeka\Job\AbstractJob;
-use Omeka\Stdlib\Message;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 
 class SyncIdRef extends AbstractJob
@@ -67,23 +66,23 @@ class SyncIdRef extends AbstractJob
 
         $args = $this->job->getArgs() ?: [];
         if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
-            $this->logger->err(new Message(
+            $this->logger->err(
                 'Le mode de mise à jour n’est pas indiqué.' // @translate
-            ));
+            );
             return;
         }
 
         if (empty($args['properties'])) {
-            $this->logger->err(new Message(
+            $this->logger->err(
                 'Les propriétés à mettre à jour ne sont pas indiquées.'
-            ));
+            );
             return;
         }
 
         if (empty($args['property_uri']) || empty($this->getPropertyIds()[$args['property_uri']])) {
-            $this->logger->err(new Message(
+            $this->logger->err(
                 'La propriété où se trouve l’uri n’est pas indiquée.'
-            ));
+            );
             return;
         }
 
@@ -104,9 +103,9 @@ class SyncIdRef extends AbstractJob
             : array_intersect($dataTypeManager->getRegisteredNames(), $datatypes, $managedDatatypes);
 
         if (empty($datatypes)) {
-            $this->logger->err(new Message(
+            $this->logger->err(
                 'Les types de données ne sont pas définis.'
-            ));
+            );
             return;
         }
 
@@ -116,15 +115,15 @@ class SyncIdRef extends AbstractJob
             : null;
 
         if (!$mapping) {
-            $this->logger->err(new Message(
+            $this->logger->err(
                 'Le fichier d’alignement "data/mappings/mappings.json" est vide.'
-            ));
+            );
             return;
         }
 
-        $this->logger->notice(new Message(
+        $this->logger->notice(
             'Utilisation du fichier d’alignement "data/mappings/mappings.json".'
-        ));
+        );
 
         $this->syncViaIdRef(
             $args['mode'],
@@ -160,16 +159,16 @@ class SyncIdRef extends AbstractJob
         $response = $this->api->search('items', ['limit' => 0] + $query);
         $totalToProcess = $response->getTotalResults();
         if (empty($totalToProcess)) {
-            $this->logger->warn(new Message(
+            $this->logger->warn(
                 'No item selected. You may check your query.' // @translate
-            ));
+            );
             return;
         }
 
-        $this->logger->info(new Message(
-            'Starting processing %1$d items with uri.', // @translate
-            $totalToProcess
-        ));
+        $this->logger->info(
+            'Starting processing {total} items with uri.', // @translate
+            ['total' => $totalToProcess]
+        );
 
         $processAllProperties = in_array('all', $properties);
 
@@ -190,10 +189,10 @@ class SyncIdRef extends AbstractJob
 
             foreach ($items as $key => $item) {
                 if ($this->shouldStop()) {
-                    $this->logger->warn(new Message(
-                        'The job was stopped: %1$d/%2$d resources processed.', // @translate
-                        $offset + $key, $totalToProcess
-                    ));
+                    $this->logger->warn(
+                        'The job was stopped: {count}/{total} resources processed.', // @translate
+                        ['count' => $offset + $key, 'total' => $totalToProcess]
+                    );
                     break 2;
                 }
 
@@ -215,46 +214,46 @@ class SyncIdRef extends AbstractJob
                                     $processAllProperties
                                 );
                                 if ($result === true) {
-                                    $this->logger->info(new Message(
-                                        'Item #%1$d: uri "%2$s" has new data.', // @translate
-                                        $item->id(), $url
-                                    ));
+                                    $this->logger->info(
+                                        'Item #{item_id}: uri "{uri}" has new data.', // @translate
+                                        ['item_id' => $item->id(), 'uri' => $url]
+                                    );
                                     ++$totalSucceed;
                                 } elseif (is_null($result)) {
                                     ++$totalNoNewData;
                                 } else {
-                                    $this->logger->err(new Message(
-                                        'Item #%1$d: uri "%2$s" not updatable.', // @translate
-                                        $item->id(), $url
-                                    ));
+                                    $this->logger->err(
+                                        'Item #{item_id}: uri "{uri}" not updatable.', // @translate
+                                        ['item_id' => $item->id(), 'uri' => $url]
+                                    );
                                     ++$totalFailed;
                                 }
                             } else {
-                                $this->logger->err(new Message(
-                                    'Item #%1$d: uri "%2$s" not available.', // @translate
-                                    $item->id(), $url
-                                ));
+                                $this->logger->err(
+                                    'Item #{item_id}: uri "{uri}" not available.', // @translate
+                                    ['item_id' => $item->id(), 'uri' => $url]
+                                );
                                 ++$totalFailed;
                             }
                         } else {
-                            $this->logger->warn(new Message(
-                                'Item #%1$d: unable to determine map key from the datatype "%2$s".', // @translate
-                                $item->id(), $datatype
-                            ));
+                            $this->logger->warn(
+                                'Item #{item_id}: unable to determine map key from the datatype "{datatype}".', // @translate
+                                ['item_id' => $item->id(), 'datatype' => $datatype]
+                            );
                             ++$totalSkipped;
                         }
                     } else {
-                        $this->logger->warn(new Message(
-                            'Item #%1$d: no uri in value.', // @translate
-                            $item->id(), $datatype
-                        ));
+                        $this->logger->warn(
+                            'Item #{item_id}: no uri in value.', // @translate
+                            ['item_id' => $item->id()]
+                        );
                         ++$totalSkipped;
                     }
                 } else {
-                    $this->logger->warn(new Message(
-                        'Item #%1$d: no value.', // @translate
-                        $item->id(), $datatype
-                    ));
+                    $this->logger->warn(
+                        'Item #{item_id}: no value.', // @translate
+                        ['item_id' => $item->id()]
+                    );
                     ++$totalSkipped;
                 }
 
@@ -267,15 +266,17 @@ class SyncIdRef extends AbstractJob
             $offset += self::SQL_LIMIT;
         }
 
-        $this->logger->notice(new Message(
-            'End of process: %1$d/%2$d items processed, %3$d updated, %4$d without new data, %5$d errors, %6$d skipped.', // @translate
-            $totalProcessed,
-            $totalToProcess,
-            $totalSucceed,
-            $totalNoNewData,
-            $totalFailed,
-            $totalSkipped
-        ));
+        $this->logger->notice(
+            'End of process: {count}/{total} items processed, {total_succeed} updated, {total_no_new} without new data, {total_failed} errors, {total_skipped} skipped.', // @translate
+            [
+                'count' => $totalProcessed,
+                'total' => $totalToProcess,
+                'total_succeed' => $totalSucceed,
+                'total_no_new' => $totalNoNewData,
+                'total_failed' => $totalFailed,
+                'total_skipped' => $totalSkipped,
+            ]
+        );
     }
 
     protected function updateResource(
@@ -413,10 +414,10 @@ class SyncIdRef extends AbstractJob
         try {
             $this->api->update($resource->resourceName(), $resource->id(), $data);
         } catch (\Exception $exception) {
-            $this->logger->err(new Message(
-                'Item #%1$s : %2$s',
-                $resource->id(), $exception->getMessage()
-            ));
+            $this->logger->err(
+                'Item #{item_id}: {message}',
+                ['item_id' => $resource->id(), 'message' => $exception->getMessage()]
+            );
             return false;
         }
 
@@ -480,7 +481,7 @@ class SyncIdRef extends AbstractJob
     protected function fetchUrlXml(string $url): ?DOMDocument
     {
         $headers = [
-            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0',
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
             'Content-Type' => 'application/xml',
             'Accept-Encoding' => 'gzip, deflate',
         ];
@@ -488,26 +489,26 @@ class SyncIdRef extends AbstractJob
         try {
             $response = \Laminas\Http\ClientStatic::get($url, [], $headers);
         } catch (\Laminas\Http\Client\Exception\ExceptionInterface $e) {
-            $this->logger->err(new Message(
-                'Connection error when fetching url "%1$s": %2$s', // @translate
-                $url, $e
-            ));
+            $this->logger->err(
+                'Connection error when fetching url "{url}": {exception}', // @translate
+                ['url' => $url, 'exception' => $e]
+            );
             return null;
         }
         if (!$response->isSuccess()) {
-            $this->logger->err(new Message(
-                'Connection issue when fetching url "%1$s": %2$s', // @translate
-                $url, $response->getReasonPhrase()
-            ));
+            $this->logger->err(
+                'Connection issue when fetching url "{url}": {message}', // @translate
+                ['url' => $url, 'message' => $response->getReasonPhrase()]
+            );
             return null;
         }
 
         $xml = $response->getBody();
         if (!$xml) {
-            $this->logger->err(new Message(
-                'Output is not xml for url "%s".', // @translate
-                $url
-            ));
+            $this->logger->err(
+                'Output is not xml for url "{url}".', // @translate
+                ['url' => $url]
+            );
             return null;
         }
 
@@ -519,18 +520,18 @@ class SyncIdRef extends AbstractJob
         try {
             $doc->loadXML($xml);
         } catch (\Exception $e) {
-            $this->logger->err(new Message(
-                'Output is not xml for url "%s".', // @translate
-                $url
-            ));
+            $this->logger->err(
+                'Output is not xml for url "{url}".', // @translate
+                ['url' => $url]
+            );
             return null;
         }
 
         if (!$doc) {
-            $this->logger->err(new Message(
-                'Output is not xml for url "%s".', // @translate
-                $url
-            ));
+            $this->logger->err(
+                'Output is not xml for url "{url}".', // @translate
+                ['url' => $url]
+            );
             return null;
         }
 

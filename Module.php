@@ -2,22 +2,29 @@
 
 namespace CopIdRef;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
+use Common\TraitModule;
 use CopIdRef\Form\ConfigForm;
-use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\Mvc\MvcEvent;
-use Omeka\Stdlib\Message;
+use Omeka\Module\AbstractModule;
+use Common\Stdlib\PsrMessage;
 
+/**
+ * CopIdRef
+ *
+ * @copyright Daniel Berthereau, 2021-2024
+ * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
+ */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     const NAMESPACE = __NAMESPACE__;
 
     public function onBootstrap(MvcEvent $event): void
@@ -57,7 +64,7 @@ class Module extends AbstractModule
 
     public function handleConfigForm(AbstractController $controller)
     {
-        if (!parent::handleConfigForm($controller)) {
+        if (!$this->handleConfigFormAuto($controller)) {
             return false;
         }
 
@@ -83,7 +90,7 @@ class Module extends AbstractModule
         $args = $post['sync_records'];
 
         if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
-            $message = new Message(
+            $message = new PsrMessage(
                 'Le mode de mise à jour n’est pas indiqué.'
             );
             $messenger->addError($message);
@@ -91,7 +98,7 @@ class Module extends AbstractModule
         }
 
         if (empty($args['properties'])) {
-            $message = new Message(
+            $message = new PsrMessage(
                 'Les propriétés à mettre à jour ne sont pas indiquées.'
             );
             $messenger->addError($message);
@@ -99,7 +106,7 @@ class Module extends AbstractModule
         }
 
         if (empty($args['property_uri'])) {
-            $message = new Message(
+            $message = new PsrMessage(
                 'La propriété où se trouve l’uri n’est pas indiquée.'
             );
             $messenger->addError($message);
@@ -115,19 +122,21 @@ class Module extends AbstractModule
         $dispatcher = $services->get(\Omeka\Job\Dispatcher::class);
         $job = $dispatcher->dispatch(\CopIdRef\Job\SyncIdRef::class, $args);
 
-        $message = new Message(
-            'Mise à jour des ressources via IdRef en arrière-plan (%1$stâche #%2$d%3$s, %4$sjournaux%3$s).', // @translate
-            sprintf('<a href="%s">',
-                htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
-            ),
-            $job->getId(),
-            '</a>',
-            sprintf('<a href="%s">',
-                htmlspecialchars($this->isModuleActive('Log')
-                    ? $urlPlugin->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
-                    : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+        $message = new PsrMessage(
+            'Mise à jour des ressources via IdRef en arrière-plan ({link_job}tâche #{job_id}{link_end}, {link_log}journaux{link_end}).', // @translate
+            [
+                'link_job' => sprintf('<a href="%s">',
+                    htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                ),
+                'job_id' => $job->getId(),
+                'link_end' => '</a>',
+                'link_log' => sprintf('<a href="%s">',
+                    htmlspecialchars($this->isModuleActive('Log')
+                        ? $urlPlugin->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
+                        : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                    )
                 )
-            )
+            ]
         );
         $message->setEscapeHtml(false);
         $messenger->addSuccess($message);
