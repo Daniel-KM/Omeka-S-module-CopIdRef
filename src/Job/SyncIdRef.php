@@ -62,7 +62,7 @@ class SyncIdRef extends AbstractJob
         $this->logger->addProcessor($referenceIdProcessor);
 
         $this->api = $services->get('Omeka\ApiManager');
-        $this->easyMeta = $services->get('EasyMeta');
+        $this->easyMeta = $services->get('Common\EasyMeta');
         $this->connection = $services->get('Omeka\Connection');
         $this->entityManager = $services->get('Omeka\EntityManager');
 
