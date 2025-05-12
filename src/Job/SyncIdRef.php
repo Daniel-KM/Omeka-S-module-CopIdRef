@@ -81,7 +81,7 @@ class SyncIdRef extends AbstractJob
             return;
         }
 
-        if (empty($args['property_uri']) || !$this->easyMeta->propertyId([$args['property_uri']])) {
+        if (empty($args['property_uri']) || !$this->easyMeta->propertyId($args['property_uri'])) {
             $this->logger->err(
                 'La propriété où se trouve l’uri n’est pas indiquée.'
             );
