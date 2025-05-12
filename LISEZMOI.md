@@ -126,7 +126,7 @@ connaissance de la licence CeCILL et que vous en acceptez les termes.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021-2024 (voir [Daniel-KM] sur GitLab)
+* Copyright Daniel Berthereau, 2021-2025 (voir [Daniel-KM] sur GitLab)
 * Copyright Abes, (voir les fichiers présents dans [la présentation])
 
 Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
