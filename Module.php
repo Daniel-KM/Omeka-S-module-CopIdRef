@@ -127,6 +127,18 @@ class Module extends AbstractModule
             return true;
         }
 
+        $args['query'] ??= '';
+        if ($args['query']) {
+            $pos = mb_strpos($args['query'], '?');
+            if ($pos !== false) {
+                $args['query'] = mb_substr($args['query'], $pos + 1);
+                $message = new PsrMessage(
+                    'Il est inutile d’indiquer la première partie de la requête.' // @translate
+                );
+                $messenger->addWarning($message);
+            }
+        }
+
         $query = [];
         parse_str($args['query'] ?? '', $query);
         $args['query'] = $query;
