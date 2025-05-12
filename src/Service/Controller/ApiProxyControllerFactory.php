@@ -3,8 +3,8 @@
 namespace CopIdRef\Service\Controller;
 
 use CopIdRef\Controller\ApiProxyController;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class ApiProxyControllerFactory implements FactoryInterface
 {

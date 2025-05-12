@@ -67,6 +67,7 @@ class SyncIdRef extends AbstractJob
         $this->entityManager = $services->get('Omeka\EntityManager');
 
         $args = $this->job->getArgs() ?: [];
+
         if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
             $this->logger->err(
                 'Le mode de mise à jour n’est pas indiqué.' // @translate
@@ -76,14 +77,14 @@ class SyncIdRef extends AbstractJob
 
         if (empty($args['properties'])) {
             $this->logger->err(
-                'Les propriétés à mettre à jour ne sont pas indiquées.'
+                'Les propriétés à mettre à jour ne sont pas indiquées.' // @translate
             );
             return;
         }
 
         if (empty($args['property_uri']) || !$this->easyMeta->propertyId($args['property_uri'])) {
             $this->logger->err(
-                'La propriété où se trouve l’uri n’est pas indiquée.'
+                'La propriété où se trouve l’uri n’est pas indiquée.' // @translate
             );
             return;
         }
@@ -161,11 +162,12 @@ class SyncIdRef extends AbstractJob
             'type' => 'ex',
         ];
 
-        $response = $this->api->search('items', ['limit' => 0] + $query);
+        $response = $this->api->search('items', $query, ['returnScalar' => 'id']);
+
         $totalToProcess = $response->getTotalResults();
         if (empty($totalToProcess)) {
             $this->logger->warn(
-                'No item selected. You may check your query.' // @translate
+                'The results of the query is empty. You may check it and the property to update.' // @translate
             );
             return;
         }
@@ -493,7 +495,7 @@ class SyncIdRef extends AbstractJob
     protected function fetchUrlXml(string $url): ?DOMDocument
     {
         $headers = [
-            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
+            'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0',
             'Content-Type' => 'application/xml',
             'Accept-Encoding' => 'gzip, deflate',
         ];
@@ -558,7 +560,7 @@ class SyncIdRef extends AbstractJob
         $geonames = file_get_contents('https://download.geonames.org/export/dump/countryInfo.txt');
         if (!strlen((string) $geonames)) {
             $this->logger->warn(
-                'Impossible de récupérer les données des pays geonames. Utilisation du fichier local'
+                'Impossible de récupérer les données des pays geonames. Utilisation du fichier local' // @translate
             );
             $geonames = file_get_contents(dirname(__DIR__, 2) . '/data/mappings/geonames_countries.json');
             $geonames = json_decode($geonames, true);

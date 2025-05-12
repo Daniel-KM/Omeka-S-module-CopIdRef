@@ -2,7 +2,7 @@
 
 namespace CopIdRef;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -18,7 +18,7 @@ use Omeka\Module\AbstractModule;
 /**
  * CopIdRef
  *
- * @copyright Daniel Berthereau, 2021-2024
+ * @copyright Daniel Berthereau, 2021-2025
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  */
 class Module extends AbstractModule
@@ -97,15 +97,20 @@ class Module extends AbstractModule
             return true;
         }
 
+        /**
+         * @var \Laminas\ServiceManager\ServiceLocatorInterface $services
+         * @var \Omeka\View\Helper\Url $urlHelper
+         * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
+         */
         $plugins = $services->get('ControllerPluginManager');
+        $urlHelper = $services->get('ViewHelperManager')->get('url');
         $messenger = $plugins->get('messenger');
-        $urlPlugin = $plugins->get('url');
 
         $args = $post['sync_records'];
 
         if (empty($args['mode']) || !in_array($args['mode'], ['append', 'replace'])) {
             $message = new PsrMessage(
-                'Le mode de mise à jour n’est pas indiqué.'
+                'Le mode de mise à jour n’est pas indiqué.' // @translate
             );
             $messenger->addError($message);
             return true;
@@ -113,7 +118,7 @@ class Module extends AbstractModule
 
         if (empty($args['properties'])) {
             $message = new PsrMessage(
-                'Les propriétés à mettre à jour ne sont pas indiquées.'
+                'Les propriétés à mettre à jour ne sont pas indiquées.' // @translate
             );
             $messenger->addError($message);
             return true;
@@ -121,7 +126,7 @@ class Module extends AbstractModule
 
         if (empty($args['property_uri'])) {
             $message = new PsrMessage(
-                'La propriété où se trouve l’uri n’est pas indiquée.'
+                'La propriété où se trouve l’uri n’est pas indiquée.' // @translate
             );
             $messenger->addError($message);
             return true;
@@ -152,16 +157,13 @@ class Module extends AbstractModule
             'Mise à jour des ressources via IdRef en arrière-plan ({link_job}tâche #{job_id}{link_end}, {link_log}journaux{link_end}).', // @translate
             [
                 'link_job' => sprintf('<a href="%s">',
-                    htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                    htmlspecialchars($urlHelper('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
                 ),
                 'job_id' => $job->getId(),
                 'link_end' => '</a>',
-                'link_log' => sprintf('<a href="%s">',
-                    htmlspecialchars($this->isModuleActive('Log')
-                        ? $urlPlugin->fromRoute('admin/log', [], ['query' => ['job_id' => $job->getId()]])
-                        : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
-                    )
-                )
+                'link_log' => class_exists('Log\Module', false)
+                    ? sprintf('<a href="%1$s">', $urlHelper('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]))
+                    : sprintf('<a href="%1$s" target="_blank">', $urlHelper('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()])),
             ]
         );
         $message->setEscapeHtml(false);
