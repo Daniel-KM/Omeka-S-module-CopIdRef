@@ -217,7 +217,7 @@ class SyncIdRef extends AbstractJob
                                     $record,
                                     $mode,
                                     $properties,
-                                    $mapping[$mappingMaps[$datatype] ?? $datatype],
+                                    $mapping[$mappingMaps[$datatype] ?? $datatype] ?? [],
                                     $processAllProperties
                                 );
                                 if ($result === true) {
