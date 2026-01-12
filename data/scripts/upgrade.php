@@ -40,3 +40,17 @@ if (version_compare($oldVersion, '3.4.11', '<')) {
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
 }
+
+if (version_compare($oldVersion, '3.4.13', '<')) {
+    if (!$this->isModuleActive('Mapper')) {
+        $message = new Message(
+            $translate('The module %s should be installed and active.'), // @translate
+            'Mapper'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
+    $message = new Message(
+        'Le module utilise désormais les mappings du module Mapper (modules/Mapper/data/mapping/unimarc/).' // @translate
+    );
+    $messenger->addWarning($message);
+}
