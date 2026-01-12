@@ -32,10 +32,10 @@ if (version_compare($oldVersion, '3.3.0.6', '<')) {
 }
 
 if (version_compare($oldVersion, '3.4.11', '<')) {
-    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.67')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.76')) {
         $message = new Message(
             $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-            'Common', '3.4.67'
+            'Common', '3.4.76'
         );
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
