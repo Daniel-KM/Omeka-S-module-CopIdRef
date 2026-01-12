@@ -3,10 +3,13 @@
 namespace CopIdRef\Job;
 
 use DOMDocument;
-use DOMXPath;
 use Omeka\Job\AbstractJob;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use SimpleXMLElement;
 
+/**
+ * Job to sync resources with IdRef authority data using Mapper module.
+ */
 class SyncIdRef extends AbstractJob
 {
     /**
@@ -42,17 +45,35 @@ class SyncIdRef extends AbstractJob
     protected $logger;
 
     /**
+     * @var \Mapper\Stdlib\Mapper|null
+     */
+    protected $mapper;
+
+    /**
      * @var array
      */
-    protected $geonamesCountries;
+    protected $geonamesCountries = [];
+
+    /**
+     * Mapping files per datatype.
+     *
+     * @var array
+     */
+    protected $mappingFiles = [
+        'valuesuggest:idref:person' => 'idref-personne.xml',
+        'valuesuggest:idref:corporation' => 'idref-collectivite.xml',
+    ];
+
+    /**
+     * Default mapping file for unknown datatypes.
+     *
+     * @var string
+     */
+    protected $defaultMappingFile = 'idref-autre.xml';
 
     public function perform(): void
     {
         $services = $this->getServiceLocator();
-
-        // The reference id is the job id for now.
-        $referenceIdProcessor = new \Laminas\Log\Processor\ReferenceId();
-        $referenceIdProcessor->setReferenceId('easy-admin/check/job_' . $this->job->getId());
 
         // The reference id is the job id for now.
         $referenceIdProcessor = new \Laminas\Log\Processor\ReferenceId();
@@ -65,6 +86,11 @@ class SyncIdRef extends AbstractJob
         $this->easyMeta = $services->get('Common\EasyMeta');
         $this->connection = $services->get('Omeka\Connection');
         $this->entityManager = $services->get('Omeka\EntityManager');
+
+        // Get Mapper service if available.
+        $this->mapper = $services->has('Mapper\Mapper')
+            ? $services->get('Mapper\Mapper')
+            : null;
 
         $args = $this->job->getArgs() ?: [];
 
@@ -115,21 +141,16 @@ class SyncIdRef extends AbstractJob
             return;
         }
 
-        $mappingFile = dirname(__DIR__, 2) . '/data/mappings/mappings.json';
-        $mapping = file_exists($mappingFile) && is_readable($mappingFile) && filesize($mappingFile)
-            ? json_decode(file_get_contents($mappingFile), true)
-            : null;
-
-        if (!$mapping) {
-            $this->logger->err(
-                'Le fichier d’alignement "data/mappings/mappings.json" est vide.'
+        // Check for Mapper module or fall back to legacy mapping.
+        if ($this->mapper) {
+            $this->logger->notice(
+                'Utilisation du module Mapper pour les alignements.'
             );
-            return;
+        } else {
+            $this->logger->notice(
+                'Module Mapper non disponible, utilisation du fichier d’alignement "data/mappings/mappings.json".'
+            );
         }
-
-        $this->logger->notice(
-            'Utilisation du fichier d’alignement "data/mappings/mappings.json".'
-        );
 
         $this->syncViaIdRef(
             $args['mode'],
@@ -137,7 +158,6 @@ class SyncIdRef extends AbstractJob
             $args['properties'],
             $datatypes,
             $args['property_uri'],
-            $mapping,
             $args['mapping_key'] ?? null
         );
 
@@ -146,14 +166,8 @@ class SyncIdRef extends AbstractJob
         );
     }
 
-    protected function syncViaIdRef($mode, $query, $properties, $datatypes, $propertyUri, $mapping, $mappingKey)
+    protected function syncViaIdRef($mode, $query, $properties, $datatypes, $propertyUri, $mappingKey)
     {
-        // CopIdRef mapping doesn't use the datatype or class.
-        $mappingMaps = [
-            'valuesuggest:idref:person' => 'Personne',
-            'valuesuggest:idref:corporation' => 'Collectivité',
-        ];
-
         $propertyId = $this->easyMeta->propertyId($propertyUri);
 
         $query['property'][] = [
@@ -208,46 +222,37 @@ class SyncIdRef extends AbstractJob
                     $url = $value->uri() ?: $value->value();
                     if ($url) {
                         $datatype = $value->type();
-                        $mapKey = $mapping[$mappingMaps[$datatype] ?? $datatype] ?? $mappingKey;
-                        if ($mapKey) {
-                            $record = $this->fetchRecord($url, $datatype);
-                            if ($record) {
-                                $result = $this->updateResource(
-                                    $item,
-                                    $record,
-                                    $mode,
-                                    $properties,
-                                    $mapping[$mappingMaps[$datatype] ?? $datatype] ?? [],
-                                    $processAllProperties
+                        $record = $this->fetchRecord($url, $datatype);
+                        if ($record) {
+                            $result = $this->updateResource(
+                                $item,
+                                $record,
+                                $mode,
+                                $properties,
+                                $datatype,
+                                $processAllProperties
+                            );
+                            if ($result === true) {
+                                $this->logger->info(
+                                    'Item #{item_id}: uri "{uri}" has new data.', // @translate
+                                    ['item_id' => $item->id(), 'uri' => $url]
                                 );
-                                if ($result === true) {
-                                    $this->logger->info(
-                                        'Item #{item_id}: uri "{uri}" has new data.', // @translate
-                                        ['item_id' => $item->id(), 'uri' => $url]
-                                    );
-                                    ++$totalSucceed;
-                                } elseif (is_null($result)) {
-                                    ++$totalNoNewData;
-                                } else {
-                                    $this->logger->err(
-                                        'Item #{item_id}: uri "{uri}" not updatable.', // @translate
-                                        ['item_id' => $item->id(), 'uri' => $url]
-                                    );
-                                    ++$totalFailed;
-                                }
+                                ++$totalSucceed;
+                            } elseif (is_null($result)) {
+                                ++$totalNoNewData;
                             } else {
                                 $this->logger->err(
-                                    'Item #{item_id}: uri "{uri}" not available.', // @translate
+                                    'Item #{item_id}: uri "{uri}" not updatable.', // @translate
                                     ['item_id' => $item->id(), 'uri' => $url]
                                 );
                                 ++$totalFailed;
                             }
                         } else {
-                            $this->logger->warn(
-                                'Item #{item_id}: unable to determine map key from the datatype "{datatype}".', // @translate
-                                ['item_id' => $item->id(), 'datatype' => $datatype]
+                            $this->logger->err(
+                                'Item #{item_id}: uri "{uri}" not available.', // @translate
+                                ['item_id' => $item->id(), 'uri' => $url]
                             );
-                            ++$totalSkipped;
+                            ++$totalFailed;
                         }
                     } else {
                         $this->logger->warn(
@@ -286,16 +291,76 @@ class SyncIdRef extends AbstractJob
         );
     }
 
+    /**
+     * Update resource using Mapper module or legacy mapping.
+     */
     protected function updateResource(
         AbstractResourceEntityRepresentation $resource,
         DOMDocument $record,
         string $mode,
         array $properties,
-        array $mapping,
+        string $datatype,
         bool $processAllProperties
     ): ?bool {
-        // It's simpler to process data as a full array.
-        // TODO Don't use json_decode(json_encode()).
+        // Use Mapper module if available.
+        if ($this->mapper) {
+            return $this->updateResourceWithMapper($resource, $record, $mode, $properties, $datatype, $processAllProperties);
+        }
+
+        // Fall back to legacy JSON mapping.
+        return $this->updateResourceLegacy($resource, $record, $mode, $properties, $datatype, $processAllProperties);
+    }
+
+    /**
+     * Update resource using Mapper module.
+     */
+    protected function updateResourceWithMapper(
+        AbstractResourceEntityRepresentation $resource,
+        DOMDocument $record,
+        string $mode,
+        array $properties,
+        string $datatype,
+        bool $processAllProperties
+    ): ?bool {
+        // Determine mapping file based on datatype.
+        $mappingFile = $this->mappingFiles[$datatype] ?? $this->defaultMappingFile;
+        $mappingPath = dirname(__DIR__, 2) . '/data/mappings/' . $mappingFile;
+
+        if (!file_exists($mappingPath)) {
+            $this->logger->err(
+                'Mapping file "{file}" not found.', // @translate
+                ['file' => $mappingFile]
+            );
+            return false;
+        }
+
+        // Load mapping.
+        $mappingContent = file_get_contents($mappingPath);
+
+        // Convert DOMDocument to SimpleXMLElement for Mapper.
+        $xml = simplexml_import_dom($record);
+        if (!$xml) {
+            $this->logger->err(
+                'Could not convert record to SimpleXML.'
+            );
+            return false;
+        }
+
+        // Set up geonames table for lookup.
+        $this->mapper->getMapperConfig()->__invoke('geonames-table', [
+            'info' => ['label' => 'Geonames Countries'],
+            'tables' => ['geonames' => $this->geonamesCountries],
+        ]);
+
+        // Convert record using Mapper.
+        $this->mapper->setMapping('idref-' . $datatype, $mappingContent);
+        $converted = $this->mapper->convert($xml);
+
+        if (empty($converted)) {
+            return null;
+        }
+
+        // Prepare update data.
         $data = json_decode(json_encode($resource), true);
 
         $checkValue = [
@@ -311,26 +376,170 @@ class SyncIdRef extends AbstractJob
         ];
 
         $isNew = false;
-        foreach ($mapping  as $map) {
-            if ($map['to']['type'] !== 'property') {
+        foreach ($converted as $property => $values) {
+            // Skip non-property fields.
+            if (mb_strpos($property, ':') === false || mb_substr($property, 0, 2) === 'o:') {
                 continue;
             }
-            $property = $map['to']['data']['property'];
+
             if (!$processAllProperties && !in_array($property, $properties)) {
                 continue;
             }
-            $propertyId = $this->easyMeata->propertyId($property);
+
+            $propertyId = $this->easyMeta->propertyId($property);
             if (!$propertyId) {
                 continue;
             }
-            if ($map['from']['type'] === 'data') {
-                $query = trim($map['from']['#'], ' =');
-            } elseif ($map['from']['type'] === 'xpath') {
-                $query = $map['from']['path'];
+
+            // Process each value.
+            foreach ($values as $valueData) {
+                if (empty($valueData)) {
+                    continue;
+                }
+
+                // Build normalized value structure.
+                $valueType = $valueData['type'] ?? 'literal';
+                $newValue = [
+                    'property_id' => $propertyId,
+                    'type' => $valueType,
+                    '@language' => $valueData['@language'] ?? null,
+                    '@value' => $valueData['@value'] ?? null,
+                    '@id' => $valueData['@id'] ?? null,
+                    'o:label' => $valueData['o:label'] ?? null,
+                    'is_public' => $valueData['is_public'] ?? true,
+                ];
+
+                // Handle replace mode.
+                if ($mode === 'replace') {
+                    if (!isset($data[$property]) || !$isNew) {
+                        $data[$property] = [];
+                    }
+                }
+
+                // Check for duplicates in append mode.
+                if ($mode === 'append' && isset($data[$property])) {
+                    $isDuplicate = false;
+                    foreach ($data[$property] as $existingValue) {
+                        $ex = array_replace($checkValue, $existingValue);
+                        $new = array_replace($checkValue, $newValue);
+                        if ($ex === $new) {
+                            $isDuplicate = true;
+                            break;
+                        }
+                    }
+                    if ($isDuplicate) {
+                        continue;
+                    }
+                }
+
+                $isNew = true;
+                $data[$property][] = $newValue;
+            }
+        }
+
+        if (!$isNew) {
+            return null;
+        }
+
+        try {
+            $this->api->update($resource->resourceName(), $resource->id(), $data);
+        } catch (\Exception $exception) {
+            $this->logger->err(
+                'Item #{item_id}: {message}',
+                ['item_id' => $resource->id(), 'message' => $exception->getMessage()]
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Legacy update using JSON mapping file.
+     */
+    protected function updateResourceLegacy(
+        AbstractResourceEntityRepresentation $resource,
+        DOMDocument $record,
+        string $mode,
+        array $properties,
+        string $datatype,
+        bool $processAllProperties
+    ): ?bool {
+        // CopIdRef mapping doesn't use the datatype or class.
+        $mappingMaps = [
+            'valuesuggest:idref:person' => 'Personne',
+            'valuesuggest:idref:corporation' => 'Collectivité',
+        ];
+
+        $mappingFile = dirname(__DIR__, 2) . '/data/mappings/mappings.json';
+        $mapping = file_exists($mappingFile) && is_readable($mappingFile) && filesize($mappingFile)
+            ? json_decode(file_get_contents($mappingFile), true)
+            : null;
+
+        if (!$mapping) {
+            $this->logger->err(
+                'Le fichier d’alignement "data/mappings/mappings.json" est vide.'
+            );
+            return false;
+        }
+
+        $mapKey = $mappingMaps[$datatype] ?? 'Autre';
+        $mappingData = $mapping[$mapKey] ?? [];
+
+        if (empty($mappingData)) {
+            $this->logger->warn(
+                'Unable to determine map key from the datatype "{datatype}".', // @translate
+                ['datatype' => $datatype]
+            );
+            return null;
+        }
+
+        // It's simpler to process data as a full array.
+        $data = json_decode(json_encode($resource), true);
+
+        $checkValue = [
+            'property_id' => null,
+            'type' => null,
+            '@language' => null,
+            '@value' => null,
+            '@id' => null,
+            'o:label' => null,
+            'is_public' => null,
+            'value_resource_id' => null,
+            'value_resource_name' => null,
+        ];
+
+        $isNew = false;
+        foreach ($mappingData as $map) {
+            if (($map['to']['type'] ?? null) !== 'property') {
+                continue;
+            }
+            $property = $map['to']['data']['property'] ?? null;
+            if (!$property) {
+                continue;
+            }
+            if (!$processAllProperties && !in_array($property, $properties)) {
+                continue;
+            }
+            $propertyId = $this->easyMeta->propertyId($property);
+            if (!$propertyId) {
+                continue;
+            }
+
+            $fromType = $map['from']['type'] ?? null;
+            if ($fromType === 'data') {
+                $query = trim($map['from']['#'] ?? '', ' =');
+            } elseif ($fromType === 'xpath') {
+                $query = $map['from']['path'] ?? null;
             } else {
                 continue;
             }
-            $xpath = new DOMXPath($record);
+
+            if (!$query) {
+                continue;
+            }
+
+            $xpath = new \DOMXPath($record);
             $nodeList = $xpath->query($query);
             if (!$nodeList || !$nodeList->length) {
                 continue;
@@ -339,21 +548,23 @@ class SyncIdRef extends AbstractJob
             if ($value === '') {
                 continue;
             }
-            $datatype = $map['to']['data']['type'] ?? 'literal';
+
+            $valueDatatype = $map['to']['data']['type'] ?? 'literal';
             $format = $map['to']['format'] ?? null;
             switch ($format) {
                 case 'concat':
                     $val = '';
-                    foreach ($map['to']['args'] as $arg) {
+                    foreach ($map['to']['args'] ?? [] as $arg) {
                         $val .= $arg === '__value__' ? $value : $arg;
                     }
                     $value = $val;
                     break;
                 case 'table':
-                    if (isset($map['to']['args'][$value])) {
-                        $value = $map['to']['args'][$value];
+                    $args = $map['to']['args'] ?? [];
+                    if (isset($args[$value])) {
+                        $value = $args[$value];
                     } else {
-                        $datatype = 'literal';
+                        $valueDatatype = 'literal';
                     }
                     break;
                 case 'number_to_date':
@@ -362,31 +573,31 @@ class SyncIdRef extends AbstractJob
                         $value = str_replace(['-', '+', ' '], '', $value);
                         $value = $sign . rtrim(substr($value, 0, 4) . '-' . substr($value, 4, 2) . '-' . substr($value, 6, 2), '-');
                     } else {
-                        $datatype = 'literal';
+                        $valueDatatype = 'literal';
                     }
                     break;
                 case 'code_to_geonames':
                     if (isset($this->geonamesCountries[$value])) {
                         $value = $this->geonamesCountries[$value];
                     } else {
-                        $datatype = 'literal';
+                        $valueDatatype = 'literal';
                     }
                     break;
                 default:
                     // nothing.
             }
 
-            // TODO Warning: keep values when there is no value?
+            // Warning: keep values when there is no value?
             if ($mode === 'replace') {
                 $data[$property] = [];
             }
 
-            $datatypeMain = $this->easyMeta->dataTypeMain($datatype);
+            $datatypeMain = $this->easyMeta->dataTypeMain($valueDatatype);
             switch ($datatypeMain) {
                 case 'uri':
                     $newValue = [
                         'property_id' => $propertyId,
-                        'type' => $datatype,
+                        'type' => $valueDatatype,
                         '@language' => null,
                         '@value' => null,
                         '@id' => $value,
@@ -399,7 +610,7 @@ class SyncIdRef extends AbstractJob
                 default:
                     $newValue = [
                         'property_id' => $propertyId,
-                        'type' => $datatype,
+                        'type' => $valueDatatype,
                         '@language' => null,
                         '@value' => $value,
                         'is_public' => true,
@@ -409,7 +620,7 @@ class SyncIdRef extends AbstractJob
 
             // Check if duplicate.
             if ($mode === 'append') {
-                foreach ($data[$property] as $existingValue) {
+                foreach ($data[$property] ?? [] as $existingValue) {
                     $ex = array_replace($checkValue, $existingValue);
                     $new = array_replace($checkValue, $newValue);
                     if ($ex === $new) {
@@ -527,9 +738,6 @@ class SyncIdRef extends AbstractJob
             return null;
         }
 
-        // $simpleData = new SimpleXMLElement($xml, LIBXML_BIGLINES | LIBXML_COMPACT | LIBXML_NOBLANKS
-        //     | /* LIBXML_NOCDATA | */ LIBXML_NOENT | LIBXML_PARSEHUGE);
-
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
         try {
@@ -558,14 +766,16 @@ class SyncIdRef extends AbstractJob
      */
     protected function initGeonamesCountries(): self
     {
-        $geonames = file_get_contents('https://download.geonames.org/export/dump/countryInfo.txt');
+        $geonames = @file_get_contents('https://download.geonames.org/export/dump/countryInfo.txt');
         if (!strlen((string) $geonames)) {
             $this->logger->warn(
                 'Impossible de récupérer les données des pays geonames. Utilisation du fichier local' // @translate
             );
-            $geonames = file_get_contents(dirname(__DIR__, 2) . '/data/mappings/geonames_countries.json');
-            $geonames = json_decode($geonames, true);
-            $this->geonames = array_map(fn ($v) => 'http://www.geonames.org/' . $v, $geonames);
+            $localFile = dirname(__DIR__, 2) . '/data/mappings/geonames_countries.json';
+            if (file_exists($localFile)) {
+                $geonames = json_decode(file_get_contents($localFile), true);
+                $this->geonamesCountries = array_map(fn ($v) => 'http://www.geonames.org/' . $v, $geonames);
+            }
             return $this;
         }
 
@@ -576,10 +786,12 @@ class SyncIdRef extends AbstractJob
                 continue;
             }
             $row = str_getcsv($row, "\t");
-            $result[$row[0]] = 'http://www.geonames.org/' . trim($row[16]);
+            if (isset($row[0], $row[16])) {
+                $result[$row[0]] = 'http://www.geonames.org/' . trim($row[16]);
+            }
         }
 
-        $this->geonames = $result;
+        $this->geonamesCountries = $result;
         return $this;
     }
 }
