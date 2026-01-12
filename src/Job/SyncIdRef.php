@@ -295,6 +295,7 @@ class SyncIdRef extends AbstractJob
         bool $processAllProperties
     ): ?bool {
         // It's simpler to process data as a full array.
+        // TODO Don't use json_decode(json_encode()).
         $data = json_decode(json_encode($resource), true);
 
         $checkValue = [
