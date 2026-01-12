@@ -28,7 +28,7 @@ Installation
 
 See general end user documentation for [installing a module].
 
-The module [Common] must be installed first.
+The modules [Common] and [Mapper] must be installed first.
 
 If custom vocabs with uris are used in a mapping, you may need module [Bulk Edit].
 
@@ -41,6 +41,19 @@ it in the `modules` directory, and rename the directory `CopIdRef`.
 
 If the module was installed from the source, rename the name of the folder of
 the module to `CopIdRef`.
+
+- For development and testing
+
+```sh
+composer install --no-dev
+```
+
+The module includes a comprehensive test suite with unit and functional tests.
+Run them from the root of Omeka:
+
+```sh
+vendor/bin/phpunit -c modules/CopIdRef/phpunit.xml --testdox
+```
 
 
 Utilisation
@@ -57,9 +70,10 @@ can be requested from Abes) and click on the button "Link the record". This
 record will be automatically created in Omeka and linked to the current
 resource.
 
-A default mapping between Unimarc and Omeka ontologies is present in the `data/mappings`
-folder. You can modify it or complete it if needed. Only the authors and
-collectivities are predefined, in addition to a generic mapping.
+A default mapping between Unimarc and Omeka ontologies is present in the Mapper
+module (`modules/Mapper/data/mapping/unimarc/`). You can modify it or complete
+it if needed. Only the authors (Personne) and collectivities (Collectivité) are
+predefined, in addition to a generic mapping (Autre).
 
 To update items, use the sync tool available in the module config.
 
@@ -69,7 +83,7 @@ TODO
 
 - [ ] Modernize js (promise).
 - [ ] Fill a new item (cf. module Advanced Resource Template).
-- [ ] Implement the simplified mapping from the module Advanced Resource Template
+- [ ] Implement the simplified mapping from the module Advanced Resource Template.
 
 
 Warning
@@ -120,7 +134,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021-2025 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2021-2026 (see [Daniel-KM] on GitLab)
 * Copyright Abes, (see files in [the presentation])
 
 These features are built for the future digital library [Manioc] of the
@@ -136,6 +150,7 @@ Université des Antilles and Université de la Guyane, currently managed with
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
+[Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues

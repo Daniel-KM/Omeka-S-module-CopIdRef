@@ -30,10 +30,10 @@ Installation
 
 Consulter la documentation générale pour [installer un module].
 
-Le module [Common] doit être installé en premier.
+Les modules [Common] et [Mapper] doivent être installés en premier.
 
 Si vous utilisez des vocabulaires personnalisés (custom vocab) avec des uris
-dans un alignement, il est recommandé d’installer [Bulk Edit].
+dans un alignement, il est recommandé d'installer [Bulk Edit].
 
 * À partir du zip
 
@@ -43,6 +43,19 @@ décompressez les dans le dossier "modules", et renommer le dossier `CopIdRef`.
 * À partir des sources et pour le développement
 
 Si le module a été installé depuis les sources, renommer le dossier du module en `CopIdRef`.
+
+- Pour le développement et les tests
+
+```sh
+composer install --no-dev
+```
+
+Le module inclut une suite de tests unitaires et fonctionnels. Les lancer depuis
+la racine d'Omeka S :
+
+```sh
+vendor/bin/phpunit -c modules/CopIdRef/phpunit.xml --testdox
+```
 
 
 Utilisation
@@ -58,10 +71,11 @@ Dans la fenêtre IdRef, cherchez votre notice ou créez en une nouvelle (un comp
 peut être demandé à l’Abes) et cliquez sur le bouton "Lier la notice". Cette
 dernière sera créée automatiquement dans Omeka et liée à la notice en cours.
 
-Un alignement par défaut entre l’Unimarc et les ontologies Omeka est présent
-dans le dossier `data/mappings`. Vous pouvez le modifier ou le compléter si
-besoin. Seuls les auteurs et collectivités sont prédéfinis, outre une
-correspondance générique.
+Un alignement par défaut entre l'Unimarc et les ontologies Omeka est présent
+dans le module Mapper (`modules/Mapper/data/mapping/unimarc/`). Vous pouvez le
+modifier ou le compléter si besoin. Seuls les auteurs (Personne) et
+collectivités (Collectivité) sont prédéfinis, outre une correspondance générique
+(Autre).
 
 Pour mettre à jour les notices, utilisez l’outil de synchronisation disponible
 dans la configuration du module.
@@ -126,7 +140,7 @@ connaissance de la licence CeCILL et que vous en acceptez les termes.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021-2025 (voir [Daniel-KM] sur GitLab)
+* Copyright Daniel Berthereau, 2021-2026 (voir [Daniel-KM] sur GitLab)
 * Copyright Abes, (voir les fichiers présents dans [la présentation])
 
 Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
@@ -142,6 +156,7 @@ de l’Université des Antilles et Université de la Guyane, actuellement géré
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [installer un module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
+[Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
 [questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
