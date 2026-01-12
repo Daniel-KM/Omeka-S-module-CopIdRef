@@ -28,7 +28,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "CopIdRefTest\\": "test/CopIdRefTest/"
+            "CopIdRefTest\\": "tests/CopIdRefTest/"
         }
     },
     "config": {
