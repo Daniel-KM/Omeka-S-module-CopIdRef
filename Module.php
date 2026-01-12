@@ -39,6 +39,14 @@ class Module extends AbstractModule
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
+
+        if (!$this->isModuleActive('Mapper')) {
+            $message = new \Omeka\Stdlib\Message(
+                $translate('The module %s should be installed and active.'), // @translate
+                'Mapper'
+            );
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        }
     }
 
     public function onBootstrap(MvcEvent $event): void

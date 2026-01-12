@@ -13,7 +13,7 @@ $(document).ready(function() {
     var oFrame;
     var idrefinit = false;
 
-    // Les correspondances idref/omeka sont dans le module (data/mappings/mappings.json).
+    // Les correspondances idref/omeka sont dans le module Mapper (data/mapping/unimarc/).
     // Ceci est utilisé en cas de problème avec idref.
     const defaultMapping = [
         {
@@ -302,10 +302,18 @@ $(document).ready(function() {
         apiResourceType = rdfTypes[apiResourceType] ? apiResourceType : 'items';
 
         if (!mapping) {
-            const url = basePath + '/modules/CopIdRef/data/mappings/mappings.json';
+            // Map IdRef types to Mapper module mapping files.
+            const idrefMappingFiles = {
+                'Personne': 'unimarc/unimarc.idref_personne.json',
+                'Collectivité': 'unimarc/unimarc.idref_collectivites.json',
+            };
+            const mappingFile = idrefMappingFiles[idrefType] ? idrefMappingFiles[idrefType] : 'unimarc/unimarc.idref_autre.json';
+            const url = basePath + '/modules/Mapper/data/mapping/' + mappingFile;
             $.ajax({url: url, async: false})
                 .done(function(data) {
-                    mapping = data[idrefType] ? data[idrefType] : defaultMapping;
+                    // Each mapping file has the type as key (e.g., {"Personne": [...]}).
+                    const mappingKey = Object.keys(data)[0];
+                    mapping = data[mappingKey] ? data[mappingKey] : defaultMapping;
                 })
                 .fail(function(jqXHR) {
                     alert(Omeka.jsTranslate('Failed to load mapping. Creating a default resource.'));
@@ -315,7 +323,7 @@ $(document).ready(function() {
         }
 
         var geonamesCountries;
-        $.ajax({url: basePath + '/modules/CopIdRef/data/mappings/geonames_countries.json', async: false})
+        $.ajax({url: basePath + '/modules/Mapper/data/mapping/tables/geonames.countries.json', async: false})
             .done(function(data) {
                 geonamesCountries = data;
             })
