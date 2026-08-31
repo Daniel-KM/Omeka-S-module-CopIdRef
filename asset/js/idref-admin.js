@@ -118,42 +118,39 @@ $(document).ready(function() {
            return;
         };
 
-        var cleanInput = function (v) {
-            return v ? v.replace(/'/g, '\\\'') : null;
-        }
-
-        index1 = cleanInput(index1);
-        index1Value = cleanInput(index1Value);
-        index2 = cleanInput(index2);
-        index2Value = cleanInput(index2Value);
-        filtre1 = cleanInput(filtre1);
-        filtre1Value = cleanInput(filtre1Value);
-        filtre2 = cleanInput(filtre2);
-        filtre2Value = cleanInput(filtre2Value);
-        zones = cleanInput(zones);
-
-        index1 = index1 === null ? '' : index1;
-        index1Value = index1Value === null ? '' : index1Value;
-
         oFrame = document.getElementById('popupFrame');
         if (!idrefinit) {
             // TODO IdrefInit est toujours false ?
-            oFrame.contentWindow.postMessage(serializer.stringify({Init: 'true'}), '*');
+            oFrame.contentWindow.postMessage(serializer.stringify({Init: 'true'}), crossDomain);
             idrefinit = false;
         }
 
-        try {
-            if (zones != null) {
-                eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',Filtre2:\'' + filtre2 + "/" + filtre2Value + '\',' + zones + ',fromApp:\'Omeka\',AutoClick:\'false\'}), "*"); ');
-            } else if (filtre2 != null) {
-                eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',Filtre2:\'' + filtre2 + "/" + filtre2Value + '\',fromApp:\'Omeka\',AutoClick:\'false\'}), "*"); ');
-            } else if (filtre1 != null) {
-                eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',fromApp:\'Omeka\',AutoClick:\'false\'}), "*"); ');
-            } else if (index2 != null) {
-                eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',fromApp:\'Omeka\',AutoClick:\'false\'}), "*"); ');
-            } else {
-                eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',fromApp:\'Omeka\',AutoClick:\'false\'}), "*"); ');
+        var payload = {
+            Index1: index1 == null ? '' : index1,
+            Index1Value: index1Value == null ? '' : index1Value,
+            fromApp: 'Omeka',
+            AutoClick: 'false'
+        };
+        if (index2 != null) {
+            payload.Index2 = index2;
+            payload.Index2Value = index2Value == null ? '' : index2Value;
+        }
+        if (filtre1 != null) {
+            payload.Filtre1 = filtre1 + '/' + (filtre1Value == null ? '' : filtre1Value);
+        }
+        if (filtre2 != null) {
+            payload.Filtre2 = filtre2 + '/' + (filtre2Value == null ? '' : filtre2Value);
+        }
+        if (zones != null && typeof zones === 'object') {
+            for (var key in zones) {
+                if (zones.hasOwnProperty(key)) {
+                    payload[key] = zones[key];
+                }
             }
+        }
+
+        try {
+            oFrame.contentWindow.postMessage(serializer.stringify(payload), crossDomain);
         } catch(e) {
             alert(Omeka.jsTranslate('oFrame.contentWindow Failed?') + ' ' + e);
         }
@@ -205,7 +202,7 @@ $(document).ready(function() {
 
         if (data['g'] == null || data['b'] == null || data['f'] == null) {
             alert(Omeka.jsTranslate('Data are missing or incomplete.'));
-            console.log(data);
+            console.error('Data are missing or incomplete:', data);
             return;
         }
 

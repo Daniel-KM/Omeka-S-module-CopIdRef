@@ -7,6 +7,7 @@ var idAutorite = "";
 var remoteClientExist = false;
 var oFrame;
 var idrefinit = false;
+var IDREF_ORIGIN = "https://www.idref.fr";
 
 var serializer = {
 
@@ -36,7 +37,6 @@ var serializer = {
 
 function envoiClient(index1, index1Value, index2, index2Value, filtre1, filtre1Value, filtre2, filtre2Value, zones) {
 
-    index1Value = index1Value.replace(/'/g, "\\\'");
     // a commenter pour votre application
     $('#resultat').html("");
     $('#resultat').hide();
@@ -45,24 +45,40 @@ function envoiClient(index1, index1Value, index2, index2Value, filtre1, filtre1V
     };
     oFrame = document.getElementById("popupFrame");
     if (!idrefinit) {
-        oFrame.contentWindow.postMessage(serializer.stringify({Init:"true"}), "*");
+        oFrame.contentWindow.postMessage(serializer.stringify({Init: "true"}), IDREF_ORIGIN);
         // TODO Toujours false?
         idrefinit = false;
     }
-    //TODO : il faut mettre le nom de votre application cliente à la place de la valeur : NomDeVotreApplication
-    try {
-        if (zones != null)
-            eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',Filtre2:\'' + filtre2 + "/" + filtre2Value + '\',' + zones + ',fromApp:\'NomDeVotreApplication\',AutoClick:\'false\'}), "*"); ');
-        if (filtre2 != null)
-            eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',Filtre2:\'' + filtre2 + "/" + filtre2Value + '\',fromApp:\'NomDeVotreApplication\',AutoClick:\'false\'}), "*"); ');
-        else if (filtre1 != null)
-            eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',Filtre1:\'' + filtre1 + "/" + filtre1Value + '\',fromApp:\'NomDeVotreApplication\',AutoClick:\'false\'}), "*"); ');
-        else if (index2 != null)
-            eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',Index2:\'' + index2 + '\',Index2Value:\'' + index2Value + '\',fromApp:\'NomDeVotreApplication\',AutoClick:\'false\'}), "*"); ');
-        else
-            eval('oFrame.contentWindow.postMessage(serializer.stringify({Index1:\'' + index1 + '\',Index1Value:\'' + index1Value + '\',fromApp:\'NomDeVotreApplication\',AutoClick:\'false\'}), "*"); ');
+
+    var payload = {
+        Index1: index1 == null ? '' : index1,
+        Index1Value: index1Value == null ? '' : index1Value,
+        //TODO : il faut mettre le nom de votre application cliente à la
+        //place de la valeur : NomDeVotreApplication
+        fromApp: 'NomDeVotreApplication',
+        AutoClick: 'false'
+    };
+    if (index2 != null) {
+        payload.Index2 = index2;
+        payload.Index2Value = index2Value == null ? '' : index2Value;
     }
-    catch(e) {
+    if (filtre1 != null) {
+        payload.Filtre1 = filtre1 + '/' + (filtre1Value == null ? '' : filtre1Value);
+    }
+    if (filtre2 != null) {
+        payload.Filtre2 = filtre2 + '/' + (filtre2Value == null ? '' : filtre2Value);
+    }
+    if (zones != null && typeof zones === 'object') {
+        for (var key in zones) {
+            if (zones.hasOwnProperty(key)) {
+                payload[key] = zones[key];
+            }
+        }
+    }
+
+    try {
+        oFrame.contentWindow.postMessage(serializer.stringify(payload), IDREF_ORIGIN);
+    } catch(e) {
         alert("oFrame.contentWindow Failed? " + e);
     }
 }
@@ -92,6 +108,9 @@ function initClient() {
 }
 
 function traiteResultat(e) {
+    if (e.origin !== IDREF_ORIGIN) {
+        return;
+    }
     //partie à adapter pour votre client
     var data = serializer.parse(e.data);
 
