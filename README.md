@@ -23,6 +23,23 @@ If you just need to link references from IdRef for some properties, the module
 If items contain the uri, they may be automatically filled or updated.
 
 
+Privacy
+-------
+
+The "Look up in IdRef" feature opens an iframe pointing to `www.idref.fr`.
+That third-party page loads its own assets (Font Awesome from
+`maxcdn.bootstrapcdn.com`, Open Sans from `fonts.gstatic.com`, etc.). These
+requests come from the iframe document under another origin, so Omeka
+cannot intercept or rewrite them (the [Privacy] module's font listener
+does not apply across origins).
+
+To minimise the third-party exposure, the iframe is **lazy-loaded**: it is
+created with `src="about:blank"` and is only pointed to `www.idref.fr` when
+the user explicitly opens the popup. Closing the popup resets the iframe to
+`about:blank` so the connection is released. As long as no user clicks
+"Look up in IdRef", no request leaves the browser.
+
+
 Installation
 ------------
 
@@ -74,6 +91,11 @@ A default mapping between Unimarc and Omeka ontologies is present in the Mapper
 module (`modules/Mapper/data/mapping/unimarc/`). You can modify it or complete
 it if needed. Only the authors (Personne) and collectivities (Collectivité) are
 predefined, in addition to a generic mapping (Autre).
+
+Mapping files are referenced via Mapper's own `module:` reference (e.g.
+`module:unimarc/unimarc.idref_personne.json`), so CopIdRef does not depend on
+the filesystem layout of the Mapper module. This keeps the integration safe
+under composer-addons installs or any future relocation of `modules/Mapper/`.
 
 To update items, use the sync tool available in the module config.
 
@@ -151,9 +173,10 @@ Université des Antilles and Université de la Guyane, currently managed with
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
+[Privacy]: https://gitlab.com/Daniel-KM/Omeka-S-module-Privacy
 [CopIdRef.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/releases
 [Bulk Edit]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkEdit
-[modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/issues
+[modules issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-CopIdRef/-/work_items
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org

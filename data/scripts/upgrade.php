@@ -37,7 +37,8 @@ if (version_compare($oldVersion, '3.4.11', '<')) {
             $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
             'Common', '3.4.91'
         );
-        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        $messenger->addError($message);
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
     }
 }
 
@@ -47,7 +48,16 @@ if (version_compare($oldVersion, '3.4.13', '<')) {
             $translate('The module %s should be installed and active.'), // @translate
             'Mapper'
         );
-        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+        $messenger->addError($message);
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
+    }
+    if (!$this->isModuleVersionAtLeast('Mapper', '3.4.8')) {
+        $message = new Message(
+            $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+            'Mapper', '3.4.8'
+        );
+        $messenger->addError($message);
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
     }
     $message = new Message(
         'Le module utilise désormais les mappings du module Mapper (modules/Mapper/data/mapping/unimarc/).' // @translate
