@@ -279,21 +279,7 @@ class SyncIdRef extends AbstractJob
         string $datatype,
         bool $processAllProperties
     ): ?bool {
-        // Get mapping file path from Mapper module.
         $mappingFile = $this->mappingFiles[$datatype] ?? $this->defaultMappingFile;
-        $mapperModulePath = dirname(__DIR__, 3) . '/Mapper/data/mapping/';
-        $mappingPath = $mapperModulePath . $mappingFile;
-
-        if (!file_exists($mappingPath)) {
-            $this->logger->err(
-                'Mapping file "{file}" not found.', // @translate
-                ['file' => $mappingFile]
-            );
-            return false;
-        }
-
-        // Load mapping content.
-        $mappingContent = file_get_contents($mappingPath);
 
         // Convert DOMDocument to SimpleXMLElement for Mapper.
         $xml = simplexml_import_dom($record);
@@ -310,8 +296,18 @@ class SyncIdRef extends AbstractJob
             'tables' => ['geonames' => $this->geonamesCountries],
         ]);
 
-        // Load and set mapping.
-        $this->mapper->setMapping('idref-' . $datatype, $mappingContent);
+        // Resolve the mapping via Mapper's "module:" reference: Mapper locates
+        // and reads the file under its own data/mapping/ directory itself, so
+        // CopIdRef never has to guess the Mapper module path (which would break
+        // under composer-addons installs or a moved module directory).
+        $this->mapper->setMapping('idref-' . $datatype, 'module:' . $mappingFile);
+        if ($this->mapper->getMapperConfig()->hasError()) {
+            $this->logger->err(
+                'Mapping file "{file}" not found or invalid in Mapper module.', // @translate
+                ['file' => $mappingFile]
+            );
+            return false;
+        }
 
         // Convert record using Mapper.
         $converted = $this->mapper->convert($xml);
