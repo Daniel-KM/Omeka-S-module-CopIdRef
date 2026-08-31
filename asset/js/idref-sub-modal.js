@@ -130,7 +130,9 @@ function initPopUp() {
                     '<img src="' + basePath + 'modules/CopIdRef/asset/img/fermer.gif" onclick="hidePopWin(false);" id="popCloseBox" />' +
                 '</div>' +
             '</div>' +
-            '<iframe src="' + gDefaultPage + '" style="width:100%;height:100%;background-color:transparent;" scrolling="auto" frameborder="0" allowtransparency="true" id="popupFrame" name="popupFrame" width="100%" height="100%"></iframe>' +
+            // Lazy load and privacy: the iframe is created with about:blank, so
+            // no request is sent to www.idref.fr until showPopWin() is called.
+            '<iframe src="about:blank" style="width:100%;height:100%;background-color:transparent;" scrolling="auto" frameborder="0" allowtransparency="true" id="popupFrame" name="popupFrame" width="100%" height="100%"></iframe>' +
         '</div>';
     theBody.appendChild(popmask);
     theBody.appendChild(popcont);
@@ -203,8 +205,11 @@ function showPopWin(url, width, height, returnFunc, showCloseBox) {
     gPopFrame.style.width = parseInt(document.getElementById("popupTitleBar").offsetWidth, 10) + "px";
     gPopFrame.style.height = (height) + "px";
 
-    // set the url
-    //gPopFrame.src = url;
+    // Lazy load and privacy: load the IdRef page now that the popup is actually
+    // opened, and load it one time only.
+    if (gPopFrame.src === "about:blank" || gPopFrame.src === "" || gPopFrame.src === window.location.href) {
+        gPopFrame.src = url || gDefaultPage;
+    }
 
     gReturnFunc = returnFunc;
     // for IE
@@ -300,7 +305,9 @@ function hidePopWin(callReturnFunc) {
         gReturnVal = window.frames["popupFrame"].returnVal;
         window.setTimeout('gReturnFunc(gReturnVal);', 1);
     }
-    gPopFrame.src = gDefaultPage;
+    // Unload the iframe so closing the popup also releases the connection to
+    // www.idref.fr. The next showPopWin() will reload it.
+    gPopFrame.src = "about:blank";
     // display all select boxes
     if (gHideSelects == true) {
         displaySelectBoxes();
