@@ -505,7 +505,7 @@ class SyncIdRef extends AbstractJob
         libxml_use_internal_errors(true);
         $doc = new DOMDocument();
         try {
-            $doc->loadXML($xml);
+            $doc->loadXML($xml, LIBXML_NONET);
         } catch (\Throwable $e) {
             $this->logger->err(
                 'Output is not xml for url "{url}".', // @translate
