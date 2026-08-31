@@ -403,7 +403,7 @@ class SyncIdRef extends AbstractJob
 
         try {
             $this->api->update($resource->resourceName(), $resource->id(), $data);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->err(
                 'Item #{item_id}: {message}',
                 ['item_id' => $resource->id(), 'message' => $exception->getMessage()]
@@ -506,7 +506,7 @@ class SyncIdRef extends AbstractJob
         $doc = new DOMDocument();
         try {
             $doc->loadXML($xml);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->err(
                 'Output is not xml for url "{url}".', // @translate
                 ['url' => $url]
