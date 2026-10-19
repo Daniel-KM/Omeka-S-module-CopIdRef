@@ -114,16 +114,16 @@ $(document).ready(function() {
      * @see http://documentation.abes.fr/aideidrefdeveloppeur/index.html#ConstructionRequete
      */
     function envoiClient(index1, index1Value, index2, index2Value, filtre1, filtre1Value, filtre2, filtre2Value, zones) {
+        // The iframe is lazy loaded when the popup opens, so messages sent
+        // before the IdRef page is loaded are lost.
+        var frame = document.getElementById('popupFrame');
+        var isLoaded = frame && frame.src && frame.src !== 'about:blank';
+
         if (!initClient()) {
            return;
         };
 
         oFrame = document.getElementById('popupFrame');
-        if (!idrefinit) {
-            // TODO IdrefInit est toujours false ?
-            oFrame.contentWindow.postMessage(serializer.stringify({Init: 'true'}), crossDomain);
-            idrefinit = false;
-        }
 
         var payload = {
             Index1: index1 == null ? '' : index1,
@@ -149,10 +149,23 @@ $(document).ready(function() {
             }
         }
 
-        try {
-            oFrame.contentWindow.postMessage(serializer.stringify(payload), crossDomain);
-        } catch(e) {
-            alert(Omeka.jsTranslate('oFrame.contentWindow Failed?') + ' ' + e);
+        var send = function() {
+            try {
+                if (!idrefinit) {
+                    // TODO IdrefInit est toujours false ?
+                    oFrame.contentWindow.postMessage(serializer.stringify({Init: 'true'}), crossDomain);
+                    idrefinit = false;
+                }
+                oFrame.contentWindow.postMessage(serializer.stringify(payload), crossDomain);
+            } catch(e) {
+                alert(Omeka.jsTranslate('oFrame.contentWindow Failed?') + ' ' + e);
+            }
+        };
+
+        if (isLoaded) {
+            send();
+        } else {
+            oFrame.addEventListener('load', send, {once: true});
         }
     }
 
